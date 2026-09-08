@@ -58,8 +58,8 @@ impl Writer {
             }
         }
     }
-    fn update_cursor(&self, x: usize, y: usize) {
-        let position = (y * 80) + x;
+    fn update_cursor(&self, column: usize, row: usize) {
+        let position = row * 80 + column;
 
         unsafe {
             outb(0x3d4, 0x0f);
