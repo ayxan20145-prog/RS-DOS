@@ -45,7 +45,7 @@ impl Writer {
         self.column += 1;
         self.update_cursor(self.column, self.row);
     }
-    fn write_str(&mut self, text: &str) {
+    fn write_string(&mut self, text: &str) {
         for byte in text.bytes() {
             self.write_byte(byte);
         }
@@ -72,7 +72,7 @@ impl Writer {
 
 impl Write for Writer {
     fn write_str(&mut self, text: &str) -> fmt::Result {
-        self.write_str(text);
+        self.write_string(text);
 
         Ok(())
     }
