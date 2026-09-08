@@ -6,6 +6,7 @@ use core::{
     fmt::{self, Write},
     panic::PanicInfo,
 };
+use x86::io::outb;
 
 global_asm!(include_str!("boot.asm"));
 
@@ -25,6 +26,7 @@ impl Writer {
         if byte == b'\n' {
             self.column = 0;
             self.row += 1;
+            self.update_cursor(self.column, self.row);
             return;
         }
 
@@ -41,6 +43,7 @@ impl Writer {
         }
 
         self.column += 1;
+        self.update_cursor(self.column, self.row);
     }
     fn write_str(&mut self, text: &str) {
         for byte in text.bytes() {
@@ -53,6 +56,16 @@ impl Writer {
                 *VGA_BUFFER.add(i * 2) = b' ';
                 *VGA_BUFFER.add(i * 2 + 1) = background;
             }
+        }
+    }
+    fn update_cursor(&self, x: usize, y: usize) {
+        let position = (y * 80) + x;
+
+        unsafe {
+            outb(0x3d4, 0x0f);
+            outb(0x3d5, (position & 0xff) as u8);
+            outb(0x3d4, 0x0e);
+            outb(0x3d5, ((position >> 8) & 0xff) as u8);
         }
     }
 }
