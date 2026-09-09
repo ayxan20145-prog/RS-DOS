@@ -20,14 +20,39 @@ pub extern "C" fn kernel_main() -> ! {
     .unwrap();
     write!(writer, "\nC:\\>").unwrap();
 
+    let mut cmd_buffer = [0u8; 256];
+    let mut cmd_len = 0;
+
     loop {
         if let Some(key) = keyboard::read_key() {
             match key {
                 '\n' => {
-                    write!(writer, "\nC:\\>").unwrap();
+                    if cmd_len == 0 {
+                        write!(writer, "\n\nC:\\>").unwrap();
+                    } else {
+                        if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
+                            writer.clear(0x0F);
+                            writer.reset_cursor();
+                            write!(writer, "C:\\>").unwrap();
+                        } else {
+                            write!(writer, "\nunknown command").unwrap();
+                            write!(writer, "\nC:\\>").unwrap();
+                        }
+                    }
+                    cmd_len = 0;
+                }
+                '\x08' => {
+                    if cmd_len > 0 {
+                        cmd_len -= 1;
+                        writer.write_byte(b'\x08');
+                    }
                 }
                 _ => {
-                    write!(writer, "{}", key).unwrap();
+                    if cmd_len < 256 {
+                        cmd_buffer[cmd_len] = key as u8;
+                        cmd_len += 1;
+                        write!(writer, "{}", key).unwrap();
+                    }
                 }
             }
         }
