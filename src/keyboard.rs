@@ -1,4 +1,4 @@
-use x86::io::inb;
+use crate::io::inb;
 
 pub const KEYMAP: [Option<char>; 128] = {
     let mut map = [None; 128];
@@ -67,12 +67,10 @@ pub const KEYMAP: [Option<char>; 128] = {
 };
 
 pub fn read_scancode() -> u8 {
-    unsafe {
-        while (inb(0x64) & 1) == 0 {
-            continue;
-        }
-        inb(0x60)
+    while (inb(0x64) & 1) == 0 {
+        continue;
     }
+    inb(0x60)
 }
 
 pub fn read_key() -> Option<char> {

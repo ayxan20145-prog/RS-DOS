@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod io;
 mod keyboard;
 mod panic;
 mod vga;

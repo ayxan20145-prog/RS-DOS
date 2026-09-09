@@ -1,6 +1,6 @@
 [package]
 name = "RS-DOS"
-version = "0.9.3"
+version = "0.10.0"
 edition = "2024"
 
 [[bin]]
@@ -9,4 +9,3 @@ test = false
 bench = false
 
 [dependencies]
-x86 = "0.52.0"

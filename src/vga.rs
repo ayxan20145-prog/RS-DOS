@@ -1,5 +1,5 @@
+use crate::io::outb;
 use core::fmt::{self, Write};
-use x86::io::outb;
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 
@@ -66,12 +66,10 @@ impl Writer {
     fn update_cursor(&self, column: usize, row: usize) {
         let position = row * 80 + column;
 
-        unsafe {
-            outb(0x3d4, 0x0f);
-            outb(0x3d5, (position & 0xff) as u8);
-            outb(0x3d4, 0x0e);
-            outb(0x3d5, ((position >> 8) & 0xff) as u8);
-        }
+        outb(0x3d4, 0x0f);
+        outb(0x3d5, (position & 0xff) as u8);
+        outb(0x3d4, 0x0e);
+        outb(0x3d5, ((position >> 8) & 0xff) as u8);
     }
     pub fn reset_cursor(&mut self) {
         self.column = 0;
