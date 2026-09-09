@@ -21,6 +21,17 @@ impl Writer {
             return;
         }
 
+        if byte == b'\x08' {
+            if self.column > 0 {
+                self.column -= 1;
+                self.write_byte(b' ');
+                self.column -= 1;
+                self.update_cursor(self.column, self.row);
+                return;
+            }
+            return;
+        }
+
         if self.column >= 80 {
             self.column = 0;
             self.row += 1;
