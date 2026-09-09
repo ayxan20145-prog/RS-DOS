@@ -34,8 +34,12 @@ pub extern "C" fn kernel_main() -> ! {
                             writer.clear(0x0F);
                             writer.reset_cursor();
                             write!(writer, "C:\\>").unwrap();
+                        } else if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
+                            write!(writer, "\nhelp\ncls").unwrap();
+                            write!(writer, "\nC:\\>").unwrap();
                         } else {
-                            write!(writer, "\nunknown command").unwrap();
+                            let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                            write!(writer, "\nunknown command: {}", command).unwrap();
                             write!(writer, "\nC:\\>").unwrap();
                         }
                     }
