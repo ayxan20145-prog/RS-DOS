@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod cpu;
 mod io;
 mod keyboard;
 mod panic;
@@ -32,7 +33,7 @@ pub extern "C" fn kernel_main() -> ! {
                         write!(writer, "\n\nC:\\>").unwrap();
                     } else {
                         if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
-                            write!(writer, "\nhelp\ncls\necho\nver").unwrap();
+                            write!(writer, "\nhelp\ncls\necho\nver\nhalt").unwrap();
                             write!(writer, "\nC:\\>").unwrap();
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
                             writer.clear(0x0F);
@@ -51,6 +52,9 @@ pub extern "C" fn kernel_main() -> ! {
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"ver" {
                             write!(writer, "\n{}", env!("CARGO_PKG_VERSION")).unwrap();
                             write!(writer, "\nC:\\>").unwrap();
+                        } else if cmd_len == 4 && &cmd_buffer[..4] == b"halt" {
+                            write!(writer, "\nSystem halted").unwrap();
+                            cpu::halt();
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             write!(writer, "\nunknown command: {}", command).unwrap();
