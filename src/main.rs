@@ -30,12 +30,22 @@ pub extern "C" fn kernel_main() -> ! {
                     if cmd_len == 0 {
                         write!(writer, "\n\nC:\\>").unwrap();
                     } else {
-                        if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
+                        if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
+                            write!(writer, "\nhelp\ncls\necho").unwrap();
+                            write!(writer, "\nC:\\>").unwrap();
+                        } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
                             writer.clear(0x0F);
                             writer.reset_cursor();
                             write!(writer, "C:\\>").unwrap();
-                        } else if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
-                            write!(writer, "\nhelp\ncls").unwrap();
+                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"echo" {
+                            if cmd_len == 4 {
+                                write!(writer, "\n").unwrap();
+                            } else {
+                                let start = 5;
+                                let arg =
+                                    core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap_or("");
+                                write!(writer, "\n{}", arg).unwrap();
+                            }
                             write!(writer, "\nC:\\>").unwrap();
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
