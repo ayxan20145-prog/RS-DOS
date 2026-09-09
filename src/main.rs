@@ -28,9 +28,8 @@ pub extern "C" fn kernel_main() -> ! {
     .unwrap();
     write!(writer, "\nC:\\>").unwrap();
     loop {
-        match read_key() {
-            Some(key) => write!(writer, "{}", key).unwrap(),
-            None => {}
+        if let Some(key) = read_key() {
+            write!(writer, "{}", key).unwrap();
         }
     }
 }
