@@ -5,7 +5,6 @@ pub const KEYMAP: [Option<char>; 128] = {
 
     // number row
     map[0x02] = Some('1');
-    map[0x02] = Some('1');
     map[0x03] = Some('2');
     map[0x04] = Some('3');
     map[0x05] = Some('4');

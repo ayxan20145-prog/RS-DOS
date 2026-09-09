@@ -19,9 +19,17 @@ pub extern "C" fn kernel_main() -> ! {
     )
     .unwrap();
     write!(writer, "\nC:\\>").unwrap();
+
     loop {
         if let Some(key) = keyboard::read_key() {
-            write!(writer, "{}", key).unwrap();
+            match key {
+                '\n' => {
+                    write!(writer, "\nC:\\>").unwrap();
+                }
+                _ => {
+                    write!(writer, "{}", key).unwrap();
+                }
+            }
         }
     }
 }
