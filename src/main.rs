@@ -46,5 +46,10 @@ fn read_scancode() -> u8 {
 
 fn read_key() -> Option<char> {
     let scancode = read_scancode();
+
+    if (scancode & 0x80) != 0 {
+        return None;
+    }
+
     KEYMAP[scancode as usize]
 }
