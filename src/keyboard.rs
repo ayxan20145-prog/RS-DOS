@@ -45,6 +45,19 @@ pub const KEYMAP: [Option<char>; 128] = {
     map[0x31] = Some('n');
     map[0x32] = Some('m');
 
+    // symbols
+    map[0x0C] = Some('-');
+    map[0x0D] = Some('=');
+    map[0x1A] = Some('[');
+    map[0x1B] = Some(']');
+    map[0x27] = Some(';');
+    map[0x28] = Some('\'');
+    map[0x29] = Some('`');
+    map[0x2B] = Some('\\');
+    map[0x33] = Some(',');
+    map[0x34] = Some('.');
+    map[0x35] = Some('/');
+
     // other keys
     map[0x1c] = Some('\n');
     map[0x39] = Some(' ');
