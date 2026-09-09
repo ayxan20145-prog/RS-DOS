@@ -19,4 +19,6 @@ pub extern "C" fn kernel_main() -> ! {
     writer.clear(0x0F);
 
     shell::run(&mut writer);
+
+    cpu::halt();
 }

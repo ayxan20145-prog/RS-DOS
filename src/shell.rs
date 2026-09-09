@@ -1,7 +1,7 @@
-use crate::{cpu, keyboard, vga::Writer};
+use crate::{keyboard, vga::Writer};
 use core::fmt::Write;
 
-pub fn run(writer: &mut Writer) -> ! {
+pub fn run(writer: &mut Writer) {
     write!(
         writer,
         "+------------------+\n|                  |\n|      RS-DOS      |\n|                  |\n+------------------+\n"
@@ -41,7 +41,7 @@ pub fn run(writer: &mut Writer) -> ! {
                             write!(writer, "\nC:\\>").unwrap();
                         } else if cmd_len == 4 && &cmd_buffer[..4] == b"halt" {
                             write!(writer, "\nSystem halted").unwrap();
-                            cpu::halt();
+                            return;
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             write!(writer, "\nunknown command: {}", command).unwrap();
