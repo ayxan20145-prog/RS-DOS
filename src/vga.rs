@@ -37,6 +37,11 @@ impl Writer {
             self.row += 1;
         }
 
+        if self.row >= 25 {
+            self.clear(self.color);
+            self.reset_cursor();
+        }
+
         unsafe {
             let position = self.row * 80 + self.column;
 
