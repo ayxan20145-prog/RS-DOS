@@ -1,4 +1,7 @@
 # RS-DOS
+
+![example](example.png)
+
 a simple OS written in rust
 
 ## Build
