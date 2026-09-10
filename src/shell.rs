@@ -1,4 +1,7 @@
-use crate::{keyboard, vga::Writer};
+use crate::{
+    keyboard,
+    vga::{Color, Writer},
+};
 use core::fmt::Write;
 
 pub fn run(writer: &mut Writer) {
@@ -36,6 +39,9 @@ pub fn run(writer: &mut Writer) {
                             return;
                         } else if cmd_len == 5 && &cmd_buffer[..5] == b"panic" {
                             cmd_panic();
+                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"color" {
+                            cmd_color(writer, &cmd_buffer, cmd_len);
+                            write!(writer, "\nC:\\>").unwrap();
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             write!(writer, "\nunknown command: {}", command).unwrap();
@@ -62,7 +68,7 @@ pub fn run(writer: &mut Writer) {
     }
 }
 fn cmd_help(writer: &mut Writer) {
-    write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic").unwrap();
+    write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor").unwrap();
 }
 fn cmd_cls(writer: &mut Writer) {
     writer.clear();
@@ -85,4 +91,38 @@ fn cmd_halt(writer: &mut Writer) {
 }
 fn cmd_panic() {
     panic!();
+}
+fn cmd_color(writer: &mut Writer, cmd_buffer: &[u8], cmd_len: usize) {
+    let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
+    let mut parts = line.split_whitespace();
+    parts.next();
+
+    let fg = parts.next().and_then(parse_color);
+    let bg = parts.next().and_then(parse_color);
+
+    match (fg, bg) {
+        (Some(fg), Some(bg)) => writer.set_color(fg, bg),
+        _ => write!(writer, "\nusage: color <fg> <bg>").unwrap(),
+    }
+}
+fn parse_color(name: &str) -> Option<Color> {
+    Some(match name {
+        "black" => Color::Black,
+        "blue" => Color::Blue,
+        "green" => Color::Green,
+        "cyan" => Color::Cyan,
+        "red" => Color::Red,
+        "magenta" => Color::Magenta,
+        "brown" => Color::Brown,
+        "lightgray" => Color::LightGray,
+        "darkgray" => Color::DarkGray,
+        "lightblue" => Color::LightBlue,
+        "lightgreen" => Color::LightGreen,
+        "lightcyan" => Color::LightCyan,
+        "lightred" => Color::LightRed,
+        "pink" => Color::Pink,
+        "yellow" => Color::Yellow,
+        "white" => Color::White,
+        _ => return None,
+    })
 }
