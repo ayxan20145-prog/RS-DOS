@@ -65,7 +65,7 @@ fn cmd_help(writer: &mut Writer) {
     write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic").unwrap();
 }
 fn cmd_cls(writer: &mut Writer) {
-    writer.clear(0x0F);
+    writer.clear();
     writer.reset_cursor();
 }
 fn cmd_echo(writer: &mut Writer, cmd_buffer: &[u8], cmd_len: usize) {

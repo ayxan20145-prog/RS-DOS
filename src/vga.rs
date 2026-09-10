@@ -3,15 +3,49 @@ use core::fmt::{self, Write};
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 
+#[derive(Copy, Clone)]
+#[repr(u8)]
+pub enum Color {
+    Black = 0x0,
+    Blue = 0x1,
+    Green = 0x2,
+    Cyan = 0x3,
+    Red = 0x4,
+    Magenta = 0x5,
+    Brown = 0x6,
+    LightGray = 0x7,
+    DarkGray = 0x8,
+    LightBlue = 0x9,
+    LightGreen = 0xA,
+    LightCyan = 0xB,
+    LightRed = 0xC,
+    Pink = 0xD,
+    Yellow = 0xE,
+    White = 0xF,
+}
+
 pub struct Writer {
     column: usize,
     row: usize,
-    color: u8,
+    fg: Color,
+    bg: Color,
 }
 
 impl Writer {
-    pub fn new(column: usize, row: usize, color: u8) -> Self {
-        Self { column, row, color }
+    pub fn new(column: usize, row: usize, fg: Color, bg: Color) -> Self {
+        Self {
+            column,
+            row,
+            fg,
+            bg,
+        }
+    }
+    pub fn set_color(&mut self, fg: Color, bg: Color) {
+        self.fg = fg;
+        self.bg = bg;
+    }
+    pub fn color_byte(&self) -> u8 {
+        Color::vga_color(self.fg, self.bg)
     }
     pub fn write_byte(&mut self, byte: u8) {
         if byte == b'\n' {
@@ -38,7 +72,7 @@ impl Writer {
         }
 
         if self.row >= 25 {
-            self.clear(self.color);
+            self.clear();
             self.reset_cursor();
         }
 
@@ -46,7 +80,7 @@ impl Writer {
             let position = self.row * 80 + self.column;
 
             *VGA_BUFFER.add(position * 2) = byte;
-            *VGA_BUFFER.add(position * 2 + 1) = self.color;
+            *VGA_BUFFER.add(position * 2 + 1) = self.color_byte();
         }
 
         self.column += 1;
@@ -57,11 +91,11 @@ impl Writer {
             self.write_byte(byte);
         }
     }
-    pub fn clear(&mut self, background: u8) {
+    pub fn clear(&mut self) {
         for i in 0..2000 {
             unsafe {
                 *VGA_BUFFER.add(i * 2) = b' ';
-                *VGA_BUFFER.add(i * 2 + 1) = background;
+                *VGA_BUFFER.add(i * 2 + 1) = self.color_byte();
             }
         }
     }
@@ -85,5 +119,11 @@ impl Write for Writer {
         self.write_string(text);
 
         Ok(())
+    }
+}
+
+impl Color {
+    pub fn vga_color(fg: Color, bg: Color) -> u8 {
+        ((bg as u8) << 4) | (fg as u8)
     }
 }
