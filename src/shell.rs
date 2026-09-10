@@ -1,5 +1,5 @@
 use crate::{
-    keyboard,
+    keyboard, print,
     vga::{Color, writer},
 };
 use core::fmt::Write;
@@ -7,12 +7,10 @@ use core::fmt::Write;
 pub fn run() {
     writer().clear();
 
-    write!(
-        writer(),
+    print!(
         "+------------------+\n|                  |\n|      RS-DOS      |\n|                  |\n+------------------+\n"
-    )
-    .unwrap();
-    write!(writer(), "\nC:\\>").unwrap();
+    );
+    print!("\nC:\\>");
 
     let mut cmd_buffer = [0u8; 256];
     let mut cmd_len = 0;
@@ -26,16 +24,16 @@ pub fn run() {
                     } else {
                         if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
                             cmd_help();
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
                             cmd_cls();
-                            write!(writer(), "C:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"echo" {
                             cmd_echo(&cmd_buffer, cmd_len);
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"ver" {
                             cmd_ver();
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else if cmd_len == 4 && &cmd_buffer[..4] == b"halt" {
                             cmd_halt();
                             return;
@@ -43,14 +41,14 @@ pub fn run() {
                             cmd_panic();
                         } else if cmd_len >= 5 && &cmd_buffer[..5] == b"color" {
                             cmd_color(&cmd_buffer, cmd_len);
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else if cmd_len == 5 && &cmd_buffer[..5] == b"fetch" {
                             cmd_fetch();
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-                            write!(writer(), "\nunknown command: {}", command).unwrap();
-                            write!(writer(), "\nC:\\>").unwrap();
+                            print!("\nunknown command: {}", command);
+                            print!("\nC:\\>");
                         }
                     }
                     cmd_len = 0;
@@ -65,7 +63,7 @@ pub fn run() {
                     if cmd_len < 256 {
                         cmd_buffer[cmd_len] = key as u8;
                         cmd_len += 1;
-                        write!(writer(), "{}", key).unwrap();
+                        print!("{}", key);
                     }
                 }
             }
@@ -73,11 +71,7 @@ pub fn run() {
     }
 }
 fn cmd_help() {
-    write!(
-        writer(),
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch"
-    )
-    .unwrap();
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch");
 }
 fn cmd_cls() {
     writer().clear();
@@ -85,18 +79,18 @@ fn cmd_cls() {
 }
 fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
-        write!(writer(), "\n").unwrap();
+        print!("\n");
     } else {
         let start = 5;
         let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap_or("");
-        write!(writer(), "\n{}", arg).unwrap();
+        print!("\n{}", arg);
     }
 }
 fn cmd_ver() {
-    write!(writer(), "\n{}", env!("CARGO_PKG_VERSION")).unwrap();
+    print!("\n{}", env!("CARGO_PKG_VERSION"));
 }
 fn cmd_halt() {
-    write!(writer(), "\nSystem halted").unwrap();
+    print!("\nSystem halted");
 }
 fn cmd_panic() {
     panic!();
@@ -111,12 +105,13 @@ fn cmd_color(cmd_buffer: &[u8], cmd_len: usize) {
 
     match (fg, bg) {
         (Some(fg), Some(bg)) => writer().set_color(fg, bg),
-        _ => write!(writer(), "\nusage: color <fg> <bg>").unwrap(),
+        _ => {
+            print!("\nusage: color <fg> <bg>");
+        }
     }
 }
 fn cmd_fetch() {
-    write!(
-        writer(),
+    print!(
         r#"
     ____  _____       ____  ____  _____ user@RS-DOS
    / __ \/ ___/      / __ \/ __ \/ ___/ ---
@@ -125,8 +120,7 @@ fn cmd_fetch() {
 /_/ |_|/____/     /_____/\____//___/    Resoloution: 80x25
                                         
 "#
-    )
-    .unwrap();
+    );
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {

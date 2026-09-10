@@ -15,3 +15,10 @@ pub fn outb(port: u16, value: u8) {
         asm!("out dx, al", in("dx") port, in("al") value);
     }
 }
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => {
+        write!(writer(), $($arg)*).unwrap();
+    };
+}
