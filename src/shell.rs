@@ -42,6 +42,9 @@ pub fn run(writer: &mut Writer) {
                         } else if cmd_len >= 5 && &cmd_buffer[..5] == b"color" {
                             cmd_color(writer, &cmd_buffer, cmd_len);
                             write!(writer, "\nC:\\>").unwrap();
+                        } else if cmd_len == 5 && &cmd_buffer[..5] == b"fetch" {
+                            cmd_fetch(writer);
+                            write!(writer, "\nC:\\>").unwrap();
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             write!(writer, "\nunknown command: {}", command).unwrap();
@@ -68,7 +71,7 @@ pub fn run(writer: &mut Writer) {
     }
 }
 fn cmd_help(writer: &mut Writer) {
-    write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor").unwrap();
+    write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch").unwrap();
 }
 fn cmd_cls(writer: &mut Writer) {
     writer.clear();
@@ -104,6 +107,20 @@ fn cmd_color(writer: &mut Writer, cmd_buffer: &[u8], cmd_len: usize) {
         (Some(fg), Some(bg)) => writer.set_color(fg, bg),
         _ => write!(writer, "\nusage: color <fg> <bg>").unwrap(),
     }
+}
+fn cmd_fetch(writer: &mut Writer) {
+    write!(
+        writer,
+        r#"
+    ____  _____       ____  ____  _____ user@RS-DOS
+   / __ \/ ___/      / __ \/ __ \/ ___/ ---
+  / /_/ /\__ \______/ / / / / / /\__ \  OS: RS-DOS
+ / _, _/___/ /_____/ /_/ / /_/ /___/ /  Arch: i686
+/_/ |_|/____/     /_____/\____//___/    Resoloution: 80x25
+                                        
+"#
+    )
+    .unwrap();
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {
