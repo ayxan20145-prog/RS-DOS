@@ -14,7 +14,7 @@ use core::arch::global_asm;
 global_asm!(include_str!("boot.asm"));
 
 #[unsafe(no_mangle)]
-pub extern "C" fn kernel_main() -> ! {
+pub fn kernel_main() -> ! {
     shell::run();
 
     cpu::halt();
