@@ -20,7 +20,7 @@ pub fn run(writer: &mut Writer) {
                         write!(writer, "\n\nC:\\>").unwrap();
                     } else {
                         if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
-                            write!(writer, "\nhelp\ncls\necho\nver\nhalt").unwrap();
+                            write!(writer, "\nhelp\ncls\necho\nver\nhalt\npanic").unwrap();
                             write!(writer, "\nC:\\>").unwrap();
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
                             writer.clear(0x0F);
@@ -42,6 +42,8 @@ pub fn run(writer: &mut Writer) {
                         } else if cmd_len == 4 && &cmd_buffer[..4] == b"halt" {
                             write!(writer, "\nSystem halted").unwrap();
                             return;
+                        } else if cmd_len == 5 && &cmd_buffer[..5] == b"panic" {
+                            panic!();
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             write!(writer, "\nunknown command: {}", command).unwrap();

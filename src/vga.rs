@@ -58,9 +58,6 @@ impl Writer {
                 *VGA_BUFFER.add(i * 2) = b' ';
                 *VGA_BUFFER.add(i * 2 + 1) = background;
             }
-            self.column = 0;
-            self.row = 0;
-            self.update_cursor(0, 0);
         }
     }
     fn update_cursor(&self, column: usize, row: usize) {
