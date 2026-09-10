@@ -45,6 +45,9 @@ pub fn run() {
                         } else if cmd_len == 5 && &cmd_buffer[..5] == b"fetch" {
                             cmd_fetch();
                             print!("\nC:\\>");
+                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"peek" {
+                            cmd_peek(&cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -71,7 +74,7 @@ pub fn run() {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch");
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek");
 }
 fn cmd_cls() {
     writer().clear();
@@ -122,6 +125,18 @@ fn cmd_fetch() {
 "#
     );
 }
+fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 4 {
+        print!("\n");
+    } else {
+        let start = 5;
+        let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+        let addr = string_to_hex(arg);
+        let ptr = addr as *const u8;
+        let value = unsafe { *ptr };
+        print!("\n{}", value);
+    }
+}
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {
         "black" => Color::Black,
@@ -142,4 +157,14 @@ fn parse_color(name: &str) -> Option<Color> {
         "white" => Color::White,
         _ => return None,
     })
+}
+fn string_to_hex(s: &str) -> u32 {
+    let mut val: u32 = 0;
+
+    for c in s.trim_start_matches("0x").chars() {
+        let byte = c.to_digit(16).unwrap();
+        val = (val << 4) | byte;
+    }
+
+    val
 }
