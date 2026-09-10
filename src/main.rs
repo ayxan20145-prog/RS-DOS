@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![allow(static_mut_refs)]
 
 mod cpu;
 mod io;
@@ -14,11 +15,7 @@ global_asm!(include_str!("boot.asm"));
 
 #[unsafe(no_mangle)]
 pub extern "C" fn kernel_main() -> ! {
-    let mut writer = vga::Writer::new(0, 0, vga::Color::White, vga::Color::Black);
-
-    writer.clear();
-
-    shell::run(&mut writer);
+    shell::run();
 
     cpu::halt();
 }

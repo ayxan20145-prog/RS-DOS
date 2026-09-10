@@ -3,6 +3,13 @@ use core::fmt::{self, Write};
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 
+pub static mut WRITER: Writer = Writer {
+    column: 0,
+    row: 0,
+    fg: Color::White,
+    bg: Color::Black,
+};
+
 #[derive(Copy, Clone)]
 #[repr(u8)]
 pub enum Color {
@@ -126,4 +133,8 @@ impl Color {
     pub fn vga_color(fg: Color, bg: Color) -> u8 {
         ((bg as u8) << 4) | (fg as u8)
     }
+}
+
+pub fn writer() -> &'static mut Writer {
+    unsafe { &mut WRITER }
 }
