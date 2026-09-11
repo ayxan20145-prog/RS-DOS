@@ -27,7 +27,7 @@ pub fn run() {
                             print!("\nC:\\>");
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
                             cmd_cls();
-                            print!("\nC:\\>");
+                            print!("C:\\>");
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"echo" {
                             cmd_echo(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
