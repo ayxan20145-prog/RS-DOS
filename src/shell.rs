@@ -48,6 +48,9 @@ pub fn run() {
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"peek" {
                             cmd_peek(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"poke" {
+                            cmd_poke(&cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -74,7 +77,7 @@ pub fn run() {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek");
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke");
 }
 fn cmd_cls() {
     writer().clear();
@@ -135,6 +138,35 @@ fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
         let ptr = addr as *const u8;
         let value = unsafe { *ptr };
         print!("\n{}", value);
+    }
+}
+fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 4 {
+        print!("\n");
+    } else {
+        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+        let mut parts = line.split_whitespace();
+
+        parts.next();
+
+        let addr = parts.next();
+        let value = parts.next();
+
+        match (addr, value) {
+            (Some(addr), Some(value)) => {
+                let addr = string_to_hex(addr);
+                let value = value.parse::<u8>().unwrap();
+
+                let ptr = addr as *mut u8;
+
+                unsafe {
+                    *ptr = value;
+                }
+            }
+            _ => {
+                print!("\n");
+            }
+        }
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
