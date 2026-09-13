@@ -1,10 +1,11 @@
 use crate::{
+    fs::FileSystem,
     keyboard, print,
     vga::{Color, writer},
 };
 use core::fmt::Write;
 
-pub fn run() {
+pub fn run(fs: &mut FileSystem) {
     writer().clear();
 
     print!(
@@ -51,6 +52,9 @@ pub fn run() {
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"poke" {
                             cmd_poke(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len == 3 && &cmd_buffer[..3] == b"dir" {
+                            cmd_dir(fs);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -77,7 +81,7 @@ pub fn run() {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke");
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir");
 }
 fn cmd_cls() {
     writer().clear();
@@ -168,6 +172,9 @@ fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
             }
         }
     }
+}
+fn cmd_dir(fs: &mut FileSystem) {
+    fs.list();
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {

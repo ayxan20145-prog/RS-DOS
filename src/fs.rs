@@ -1,3 +1,6 @@
+use crate::{print, vga::writer};
+use core::fmt::Write;
+
 const MAX_FILES: usize = 32;
 const MAX_NAME: usize = 32;
 
@@ -44,5 +47,15 @@ impl FileSystem {
         }
 
         false
+    }
+    pub fn list(&self) {
+        for file in &self.files {
+            if file.used {
+                print!(
+                    "{}",
+                    core::str::from_utf8(&file.name[..file.name_len]).unwrap()
+                );
+            }
+        }
     }
 }
