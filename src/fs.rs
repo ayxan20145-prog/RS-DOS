@@ -33,6 +33,16 @@ impl FileSystem {
             return false;
         }
 
+        for file in &mut self.files {
+            if !file.used {
+                file.name[..name.len()].copy_from_slice(name);
+                file.name_len = name.len();
+                file.used = true;
+
+                return true;
+            }
+        }
+
         false
     }
 }
