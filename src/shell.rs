@@ -95,7 +95,7 @@ fn cmd_cls() {
 }
 fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
-        print!("\n");
+        print!("usage: echo <text>");
     } else {
         let start = 5;
         let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap_or("");
@@ -140,7 +140,7 @@ fn cmd_fetch() {
 }
 fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
-        print!("\n");
+        print!("usage: peek <addr>");
     } else {
         let start = 5;
         let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
@@ -152,7 +152,7 @@ fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
 }
 fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
-        print!("\n");
+        print!("usage: poke <addr> <val>");
     } else {
         let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
         let mut parts = line.split_whitespace();
@@ -184,7 +184,7 @@ fn cmd_dir(fs: &mut FileSystem) {
 }
 fn cmd_touch(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 5 {
-        print!("\n");
+        print!("usage: touch <name>");
     } else {
         let start = 6;
         fs.create(&cmd_buffer[start..cmd_len]);
@@ -192,7 +192,7 @@ fn cmd_touch(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
 }
 fn cmd_del(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 3 {
-        print!("\n");
+        print!("usage: del <name>");
     } else {
         let start = 4;
         fs.remove(&cmd_buffer[start..cmd_len]);
