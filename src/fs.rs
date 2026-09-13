@@ -48,6 +48,19 @@ impl FileSystem {
 
         false
     }
+    pub fn remove(&mut self, name: &[u8]) -> bool {
+        for file in &mut self.files {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                file.used = false;
+                file.name_len = 0;
+                file.name = [0; MAX_NAME];
+
+                return true;
+            }
+        }
+
+        false
+    }
     pub fn list(&self) {
         for file in &self.files {
             if file.used {
