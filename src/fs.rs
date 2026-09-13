@@ -5,6 +5,7 @@ const MAX_NAME: usize = 32;
 pub struct File {
     pub name: [u8; MAX_NAME],
     pub name_len: usize,
+    pub used: bool,
 }
 
 pub struct FileSystem {
@@ -16,6 +17,7 @@ impl File {
         Self {
             name: [0; MAX_NAME],
             name_len: 0,
+            used: false,
         }
     }
 }
@@ -25,5 +27,12 @@ impl FileSystem {
         Self {
             files: [File::new(); MAX_FILES],
         }
+    }
+    pub fn create(&mut self, name: &[u8]) -> bool {
+        if name.is_empty() || name.len() > MAX_NAME {
+            return false;
+        }
+
+        false
     }
 }
