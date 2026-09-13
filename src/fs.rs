@@ -52,7 +52,7 @@ impl FileSystem {
         for file in &self.files {
             if file.used {
                 print!(
-                    "{}",
+                    "\n{}",
                     core::str::from_utf8(&file.name[..file.name_len]).unwrap()
                 );
             }

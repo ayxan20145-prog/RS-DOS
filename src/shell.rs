@@ -55,6 +55,9 @@ pub fn run(fs: &mut FileSystem) {
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"dir" {
                             cmd_dir(fs);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"touch" {
+                            cmd_touch(fs, &cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -81,7 +84,7 @@ pub fn run(fs: &mut FileSystem) {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir");
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch");
 }
 fn cmd_cls() {
     writer().clear();
@@ -175,6 +178,14 @@ fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
 }
 fn cmd_dir(fs: &mut FileSystem) {
     fs.list();
+}
+fn cmd_touch(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 5 {
+        print!("\n");
+    } else {
+        let start = 6;
+        fs.create(&cmd_buffer[start..cmd_len]);
+    }
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {
