@@ -58,6 +58,9 @@ pub fn run(fs: &mut FileSystem) {
                         } else if cmd_len >= 5 && &cmd_buffer[..5] == b"touch" {
                             cmd_touch(fs, &cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 3 && &cmd_buffer[..3] == b"del" {
+                            cmd_del(fs, &cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -84,7 +87,7 @@ pub fn run(fs: &mut FileSystem) {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch");
+    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel");
 }
 fn cmd_cls() {
     writer().clear();
@@ -127,7 +130,7 @@ fn cmd_fetch() {
     print!(
         r#"
     ____  _____       ____  ____  _____ user@RS-DOS
-   / __ \/ ___/      / __ \/ __ \/ ___/ ---
+   / __ \/ ___/      / __ \/ __ \/ ___/ -----------
   / /_/ /\__ \______/ / / / / / /\__ \  OS: RS-DOS
  / _, _/___/ /_____/ /_/ / /_/ /___/ /  Arch: i686
 /_/ |_|/____/     /_____/\____//___/    Resoloution: 80x25
@@ -185,6 +188,14 @@ fn cmd_touch(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     } else {
         let start = 6;
         fs.create(&cmd_buffer[start..cmd_len]);
+    }
+}
+fn cmd_del(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 3 {
+        print!("\n");
+    } else {
+        let start = 4;
+        fs.remove(&cmd_buffer[start..cmd_len]);
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
