@@ -32,7 +32,11 @@ impl FileSystem {
         }
     }
     pub fn create(&mut self, name: &[u8]) -> bool {
-        if name.is_empty() || name.len() > MAX_NAME {
+        if name.is_empty() {
+            print!("\nfile name cant be empty");
+            return false;
+        } else if name.len() > MAX_NAME {
+            print!("\nfile name too long");
             return false;
         }
 
@@ -46,6 +50,7 @@ impl FileSystem {
             }
         }
 
+        print!("\ncouldnt create file");
         false
     }
     pub fn remove(&mut self, name: &[u8]) -> bool {
@@ -59,6 +64,7 @@ impl FileSystem {
             }
         }
 
+        print!("\ncouldnt delete file");
         false
     }
     pub fn list(&self) {
