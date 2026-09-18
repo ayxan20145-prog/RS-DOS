@@ -8,9 +8,7 @@ use core::fmt::Write;
 pub fn run(fs: &mut FileSystem) {
     writer().clear();
 
-    print!(
-        "+------------------+\n|                  |\n|      RS-DOS      |\n|                  |\n+------------------+\n"
-    );
+    print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
     print!("\nC:\\>");
 
     let mut cmd_buffer = [0u8; 256];
