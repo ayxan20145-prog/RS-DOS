@@ -70,7 +70,7 @@ impl FileSystem {
                     print!("\nfile too large");
                     return false;
                 }
-                
+
                 file.data[..data.len()].copy_from_slice(data);
                 file.data_len = data.len();
 
@@ -78,6 +78,26 @@ impl FileSystem {
             }
         }
         print!("\ncouldnt write");
+        false
+    }
+    pub fn read(&self, name: &[u8]) -> bool {
+        for file in &self.files {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                match core::str::from_utf8(&file.data[..file.data_len]) {
+                    Ok(data) => {
+                        print!("\n{}", data);
+                    }
+                    Err(_) => {
+                        print!("\nerror message");
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        print!("\ncouldnt read file");
         false
     }
     pub fn remove(&mut self, name: &[u8]) -> bool {
