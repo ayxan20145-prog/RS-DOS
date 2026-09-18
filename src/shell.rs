@@ -59,6 +59,12 @@ pub fn run(fs: &mut FileSystem) {
                         } else if cmd_len >= 3 && &cmd_buffer[..3] == b"del" {
                             cmd_del(fs, &cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"write" {
+                            cmd_write(fs, &cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
+                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"type" {
+                            cmd_type(fs, &cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -85,7 +91,9 @@ pub fn run(fs: &mut FileSystem) {
     }
 }
 fn cmd_help() {
-    print!("\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel");
+    print!(
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype"
+    );
 }
 fn cmd_cls() {
     writer().clear();
@@ -194,6 +202,53 @@ fn cmd_del(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     } else {
         let start = 4;
         fs.remove(&cmd_buffer[start..cmd_len]);
+    }
+}
+fn cmd_write(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len <= 6 {
+        print!("\nusage: write <file> <data>");
+        return;
+    }
+
+    let line = &cmd_buffer[..cmd_len];
+
+    let mut i = 6; // space after write
+
+    while i < cmd_len && line[i] == b' ' {
+        i += 1;
+    }
+
+    let name_start = i;
+
+    while i < cmd_len && line[i] != b' ' {
+        i += 1;
+    }
+
+    let name_end = i;
+
+    while i < cmd_len && line[i] == b' ' {
+        i += 1;
+    }
+
+    let data_start = i;
+
+    if name_start == name_end || data_start >= cmd_len {
+        print!("\nusage: write <file> <data>");
+        return;
+    }
+
+    let name = &line[name_start..name_end];
+    let data = &line[data_start..cmd_len];
+
+    fs.write(name, data);
+}
+fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 4 {
+        print!("\nusage: type <file>");
+        return;
+    } else {
+        let start = 5;
+        fs.read(&cmd_buffer[start..cmd_len]);
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
