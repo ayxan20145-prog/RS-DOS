@@ -59,6 +59,7 @@ pub const KEYMAP: [Option<char>; 128] = {
     map[0x35] = Some('/');
 
     // other keys
+    map[0x01] = Some('\x1B');
     map[0x1c] = Some('\n');
     map[0x39] = Some(' ');
     map[0x0E] = Some('\x08');
