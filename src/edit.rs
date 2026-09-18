@@ -16,10 +16,20 @@ pub fn edit() {
 
     loop {
         if let Some(key) = keyboard::read_key() {
-            if editor.buf_len < 256 {
-                editor.buf[editor.buf_len] = key as u8;
-                editor.buf_len += 1;
-                print!("{}", key);
+            match key {
+                '\x08' => {
+                    if editor.buf_len > 0 {
+                        editor.buf_len -= 1;
+                        writer().write_byte(b'\x08');
+                    }
+                }
+                _ => {
+                    if editor.buf_len < 256 {
+                        editor.buf[editor.buf_len] = key as u8;
+                        editor.buf_len += 1;
+                        print!("{}", key);
+                    }
+                }
             }
         }
     }
