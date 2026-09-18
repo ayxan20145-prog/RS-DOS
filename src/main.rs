@@ -3,6 +3,7 @@
 #![allow(static_mut_refs)]
 
 mod cpu;
+mod edit;
 mod fs;
 mod io;
 mod keyboard;
