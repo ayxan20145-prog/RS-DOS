@@ -26,5 +26,5 @@ start:
 .section .bss
 .align 16
 stack_bottom:
-    .space 4096
+    .space 65536
 stack_top:
