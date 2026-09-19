@@ -11,6 +11,32 @@ struct Editor {
     buf: [u8; 256],
     buf_len: usize,
 }
+
+impl Mode {
+    fn display(&self) {
+        let old_column = writer().column;
+        let old_row = writer().row;
+
+        match self {
+            Mode::Normal => {
+                writer().column = 0;
+                writer().row = 24;
+                print!("-- NORMAL --");
+            }
+            Mode::Insert => {
+                writer().column = 0;
+                writer().row = 24;
+                print!("-- INSERT --");
+                writer().column = old_column;
+                writer().row = old_row;
+            }
+        }
+
+        writer().column = old_column;
+        writer().row = old_row;
+        writer().update_cursor(writer().row, writer().column);
+    }
+}
 pub fn vi(fs: &mut FileSystem, name: &[u8]) {
     writer().clear();
     writer().reset_cursor();
@@ -21,7 +47,7 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
         buf_len: 0,
     };
 
-    draw_mode(&editor.mode);
+    editor.mode.display();
 
     let content = fs.read(name).unwrap();
 
@@ -45,7 +71,7 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
                     }
                     'i' => {
                         editor.mode = Mode::Insert;
-                        draw_mode(&editor.mode);
+                        editor.mode.display();
                     }
                     _ => {}
                 },
@@ -65,7 +91,7 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
                     }
                     '\x1B' => {
                         editor.mode = Mode::Normal;
-                        draw_mode(&editor.mode);
+                        editor.mode.display();
                     }
                     _ => {
                         if editor.buf_len < 256 {
@@ -78,27 +104,4 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
             }
         }
     }
-}
-fn draw_mode(mode: &Mode) {
-    let old_column = writer().column;
-    let old_row = writer().row;
-
-    match mode {
-        Mode::Normal => {
-            writer().column = 0;
-            writer().row = 24;
-            print!("-- NORMAL --");
-        }
-        Mode::Insert => {
-            writer().column = 0;
-            writer().row = 24;
-            print!("-- INSERT --");
-            writer().column = old_column;
-            writer().row = old_row;
-        }
-    }
-
-    writer().column = old_column;
-    writer().row = old_row;
-    writer().update_cursor(writer().row, writer().column);
 }
