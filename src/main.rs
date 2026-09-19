@@ -3,13 +3,13 @@
 #![allow(static_mut_refs)]
 
 mod cpu;
-mod edit;
 mod fs;
 mod io;
 mod keyboard;
 mod panic;
 mod shell;
 mod vga;
+mod vi;
 
 use core::arch::global_asm;
 

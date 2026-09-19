@@ -1,8 +1,8 @@
 use crate::{
-    edit::edit,
     fs::FileSystem,
     keyboard, print,
     vga::{Color, writer},
+    vi::vi,
 };
 use core::fmt::Write;
 
@@ -66,8 +66,8 @@ pub fn run(fs: &mut FileSystem) {
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"type" {
                             cmd_type(fs, &cmd_buffer, cmd_len);
                             print!("\nC:\\>");
-                        } else if cmd_len == 4 && &cmd_buffer[..4] == b"edit" {
-                            cmd_edit();
+                        } else if cmd_len == 2 && &cmd_buffer[..2] == b"vi" {
+                            cmd_vi();
                             print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
@@ -96,7 +96,7 @@ pub fn run(fs: &mut FileSystem) {
 }
 fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nedit"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi"
     );
 }
 fn cmd_cls() {
@@ -255,8 +255,8 @@ fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
         fs.read(&cmd_buffer[start..cmd_len]);
     }
 }
-fn cmd_edit() {
-    edit();
+fn cmd_vi() {
+    vi();
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {

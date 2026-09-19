@@ -11,7 +11,7 @@ struct Editor {
     buf: [u8; 256],
     buf_len: usize,
 }
-pub fn edit() {
+pub fn vi() {
     writer().clear();
     writer().reset_cursor();
 
