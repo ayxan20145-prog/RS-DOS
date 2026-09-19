@@ -209,42 +209,26 @@ fn cmd_del(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     }
 }
 fn cmd_write(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len <= 6 {
+    if cmd_len == 5 {
         print!("\nusage: write <file> <data>");
-        return;
+    } else {
+        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+        let mut parts = line.split_whitespace();
+
+        parts.next();
+
+        let file = parts.next();
+        let data = parts.next();
+
+        match (file, data) {
+            (Some(file), Some(data)) => {
+                fs.write(file.as_bytes(), data.as_bytes());
+            }
+            _ => {
+                print!("\n");
+            }
+        }
     }
-
-    let line = &cmd_buffer[..cmd_len];
-
-    let mut i = 6; // space after write
-
-    while i < cmd_len && line[i] == b' ' {
-        i += 1;
-    }
-
-    let name_start = i;
-
-    while i < cmd_len && line[i] != b' ' {
-        i += 1;
-    }
-
-    let name_end = i;
-
-    while i < cmd_len && line[i] == b' ' {
-        i += 1;
-    }
-
-    let data_start = i;
-
-    if name_start == name_end || data_start >= cmd_len {
-        print!("\nusage: write <file> <data>");
-        return;
-    }
-
-    let name = &line[name_start..name_end];
-    let data = &line[data_start..cmd_len];
-
-    fs.write(name, data);
 }
 fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
