@@ -66,8 +66,8 @@ pub fn run(fs: &mut FileSystem) {
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"type" {
                             cmd_type(fs, &cmd_buffer, cmd_len);
                             print!("\nC:\\>");
-                        } else if cmd_len == 2 && &cmd_buffer[..2] == b"vi" {
-                            cmd_vi();
+                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"vi" {
+                            cmd_vi(fs, &cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
@@ -239,8 +239,15 @@ fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
         fs.read(&cmd_buffer[start..cmd_len]);
     }
 }
-fn cmd_vi() {
-    vi();
+fn cmd_vi(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 2 {
+        print!("\nusage: vi <file>");
+        return;
+    } else {
+        let start = 3;
+        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+        vi(fs, name.as_bytes());
+    }
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {

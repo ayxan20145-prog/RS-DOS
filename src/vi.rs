@@ -1,4 +1,4 @@
-use crate::{keyboard, print, vga::writer};
+use crate::{fs::FileSystem, keyboard, print, vga::writer};
 use core::fmt::Write;
 
 enum Mode {
@@ -11,7 +11,7 @@ struct Editor {
     buf: [u8; 256],
     buf_len: usize,
 }
-pub fn vi() {
+pub fn vi(fs: &mut FileSystem, name: &[u8]) {
     writer().clear();
     writer().reset_cursor();
 
@@ -31,6 +31,10 @@ pub fn vi() {
                         writer().clear();
                         writer().reset_cursor();
                         return;
+                    }
+                    'w' => {
+                        let data = core::str::from_utf8(&editor.buf[..editor.buf_len]).unwrap();
+                        fs.write(name, data.as_bytes());
                     }
                     'i' => {
                         editor.mode = Mode::Insert;
