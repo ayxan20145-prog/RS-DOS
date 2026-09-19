@@ -23,6 +23,13 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
 
     draw_mode(&editor.mode);
 
+    let content = fs.read(name).unwrap();
+
+    editor.buf[..content.len()].copy_from_slice(content);
+    editor.buf_len = content.len();
+
+    print!("{}", core::str::from_utf8(content).unwrap());
+
     loop {
         if let Some(key) = keyboard::read_key() {
             match editor.mode {
