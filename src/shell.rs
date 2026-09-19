@@ -236,7 +236,8 @@ fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
         return;
     } else {
         let start = 5;
-        fs.read(&cmd_buffer[start..cmd_len]);
+        let content = core::str::from_utf8(fs.read(&cmd_buffer[start..cmd_len]).unwrap()).unwrap();
+        print!("\n{}", content);
     }
 }
 fn cmd_vi(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {

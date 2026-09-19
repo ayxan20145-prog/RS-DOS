@@ -80,25 +80,14 @@ impl FileSystem {
         print!("\ncouldnt write");
         false
     }
-    pub fn read(&self, name: &[u8]) -> bool {
+    pub fn read(&self, name: &[u8]) -> Option<&[u8]> {
         for file in &self.files {
             if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
-                match core::str::from_utf8(&file.data[..file.data_len]) {
-                    Ok(data) => {
-                        print!("\n{}", data);
-                    }
-                    Err(_) => {
-                        print!("\nerror message");
-                        return false;
-                    }
-                }
-
-                return true;
+                return Some(&file.data[..file.data_len]);
             }
         }
 
-        print!("\ncouldnt read file");
-        false
+        None
     }
     pub fn remove(&mut self, name: &[u8]) -> bool {
         for file in &mut self.files {
