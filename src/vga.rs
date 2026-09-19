@@ -32,10 +32,10 @@ pub enum Color {
 }
 
 pub struct Writer {
-    column: usize,
-    row: usize,
-    fg: Color,
-    bg: Color,
+    pub column: usize,
+    pub row: usize,
+    pub fg: Color,
+    pub bg: Color,
 }
 
 impl Writer {
@@ -106,7 +106,7 @@ impl Writer {
             }
         }
     }
-    fn update_cursor(&self, column: usize, row: usize) {
+    pub fn update_cursor(&self, column: usize, row: usize) {
         let position = row * 80 + column;
 
         outb(0x3d4, 0x0f);

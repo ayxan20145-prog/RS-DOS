@@ -21,6 +21,8 @@ pub fn edit() {
         buf_len: 0,
     };
 
+    draw_mode(&editor.mode);
+
     loop {
         if let Some(key) = keyboard::read_key() {
             match editor.mode {
@@ -30,7 +32,10 @@ pub fn edit() {
                         writer().reset_cursor();
                         return;
                     }
-                    'i' => editor.mode = Mode::Insert,
+                    'i' => {
+                        editor.mode = Mode::Insert;
+                        draw_mode(&editor.mode);
+                    }
                     _ => {}
                 },
                 Mode::Insert => match key {
@@ -47,7 +52,10 @@ pub fn edit() {
                             writer().write_byte(b'\x08');
                         }
                     }
-                    '\x1B' => editor.mode = Mode::Normal,
+                    '\x1B' => {
+                        editor.mode = Mode::Normal;
+                        draw_mode(&editor.mode);
+                    }
                     _ => {
                         if editor.buf_len < 256 {
                             editor.buf[editor.buf_len] = key as u8;
@@ -59,4 +67,27 @@ pub fn edit() {
             }
         }
     }
+}
+fn draw_mode(mode: &Mode) {
+    let old_column = writer().column;
+    let old_row = writer().row;
+
+    match mode {
+        Mode::Normal => {
+            writer().column = 0;
+            writer().row = 24;
+            print!("-- NORMAL --");
+        }
+        Mode::Insert => {
+            writer().column = 0;
+            writer().row = 24;
+            print!("-- INSERT --");
+            writer().column = old_column;
+            writer().row = old_row;
+        }
+    }
+
+    writer().column = old_column;
+    writer().row = old_row;
+    writer().update_cursor(writer().row, writer().column);
 }
