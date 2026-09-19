@@ -34,7 +34,7 @@ impl Mode {
 
         writer().column = old_column;
         writer().row = old_row;
-        writer().update_cursor(writer().row, writer().column);
+        writer().update_cursor(writer().column, writer().row);
     }
 }
 pub fn vi(fs: &mut FileSystem, name: &[u8]) {
