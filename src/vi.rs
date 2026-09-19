@@ -27,8 +27,6 @@ impl Mode {
                 writer().column = 0;
                 writer().row = 24;
                 print!("-- INSERT --");
-                writer().column = old_column;
-                writer().row = old_row;
             }
         }
 
