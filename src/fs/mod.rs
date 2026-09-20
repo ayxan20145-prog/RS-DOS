@@ -5,6 +5,8 @@ const MAX_FILES: usize = 32;
 const MAX_NAME: usize = 32;
 const MAX_DATA: usize = 1024;
 
+static mut FS: FileSystem = FileSystem::new();
+
 #[derive(Copy, Clone)]
 pub struct File {
     pub name: [u8; MAX_NAME],
@@ -21,7 +23,7 @@ pub struct FileSystem {
 }
 
 impl File {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             name: [0; MAX_NAME],
             name_len: 0,
@@ -35,7 +37,7 @@ impl File {
 }
 
 impl FileSystem {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             files: [File::new(); MAX_FILES],
         }
@@ -113,4 +115,7 @@ impl FileSystem {
             }
         }
     }
+}
+pub fn fs() -> &'static mut FileSystem {
+    unsafe { &mut FS }
 }

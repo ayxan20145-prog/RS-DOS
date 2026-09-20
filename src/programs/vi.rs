@@ -1,6 +1,6 @@
 use crate::{
     drivers::{keyboard, vga::writer},
-    fs::FileSystem,
+    fs::fs,
     print,
 };
 use core::fmt::Write;
@@ -39,7 +39,7 @@ impl Mode {
         writer().update_cursor(writer().column, writer().row);
     }
 }
-pub fn vi(fs: &mut FileSystem, name: &[u8]) {
+pub fn vi(name: &[u8]) {
     writer().clear();
     writer().reset_cursor();
 
@@ -51,7 +51,7 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
 
     editor.mode.display();
 
-    let content = fs.read(name).unwrap();
+    let content = fs().read(name).unwrap();
 
     editor.buf[..content.len()].copy_from_slice(content);
     editor.buf_len = content.len();
@@ -69,7 +69,7 @@ pub fn vi(fs: &mut FileSystem, name: &[u8]) {
                     }
                     'w' => {
                         let data = core::str::from_utf8(&editor.buf[..editor.buf_len]).unwrap();
-                        fs.write(name, data.as_bytes());
+                        fs().write(name, data.as_bytes());
                     }
                     'i' => {
                         editor.mode = Mode::Insert;

@@ -3,13 +3,13 @@ use crate::{
         keyboard,
         vga::{Color, writer},
     },
-    fs::FileSystem,
+    fs::fs,
     print,
     programs::vi::vi,
 };
 use core::fmt::Write;
 
-pub fn run(fs: &mut FileSystem) {
+pub fn run() {
     writer().clear();
 
     print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
@@ -55,22 +55,22 @@ pub fn run(fs: &mut FileSystem) {
                             cmd_poke(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else if cmd_len == 3 && &cmd_buffer[..3] == b"dir" {
-                            cmd_dir(fs);
+                            cmd_dir();
                             print!("\nC:\\>");
                         } else if cmd_len >= 5 && &cmd_buffer[..5] == b"touch" {
-                            cmd_touch(fs, &cmd_buffer, cmd_len);
+                            cmd_touch(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else if cmd_len >= 3 && &cmd_buffer[..3] == b"del" {
-                            cmd_del(fs, &cmd_buffer, cmd_len);
+                            cmd_del(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else if cmd_len >= 5 && &cmd_buffer[..5] == b"write" {
-                            cmd_write(fs, &cmd_buffer, cmd_len);
+                            cmd_write(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else if cmd_len >= 4 && &cmd_buffer[..4] == b"type" {
-                            cmd_type(fs, &cmd_buffer, cmd_len);
+                            cmd_type(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else if cmd_len >= 2 && &cmd_buffer[..2] == b"vi" {
-                            cmd_vi(fs, &cmd_buffer, cmd_len);
+                            cmd_vi(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
@@ -192,26 +192,26 @@ fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
         }
     }
 }
-fn cmd_dir(fs: &mut FileSystem) {
-    fs.list();
+fn cmd_dir() {
+    fs().list();
 }
-fn cmd_touch(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+fn cmd_touch(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 5 {
         print!("\nusage: touch <name>");
     } else {
         let start = 6;
-        fs.create(&cmd_buffer[start..cmd_len]);
+        fs().create(&cmd_buffer[start..cmd_len]);
     }
 }
-fn cmd_del(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+fn cmd_del(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 3 {
         print!("\nusage: del <name>");
     } else {
         let start = 4;
-        fs.remove(&cmd_buffer[start..cmd_len]);
+        fs().remove(&cmd_buffer[start..cmd_len]);
     }
 }
-fn cmd_write(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+fn cmd_write(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 5 {
         print!("\nusage: write <file> <data>");
     } else {
@@ -225,7 +225,7 @@ fn cmd_write(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
 
         match (file, data) {
             (Some(file), Some(data)) => {
-                fs.write(file.as_bytes(), data.as_bytes());
+                fs().write(file.as_bytes(), data.as_bytes());
             }
             _ => {
                 print!("\n");
@@ -233,24 +233,25 @@ fn cmd_write(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
         }
     }
 }
-fn cmd_type(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+fn cmd_type(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
         print!("\nusage: type <file>");
         return;
     } else {
         let start = 5;
-        let content = core::str::from_utf8(fs.read(&cmd_buffer[start..cmd_len]).unwrap()).unwrap();
+        let content =
+            core::str::from_utf8(fs().read(&cmd_buffer[start..cmd_len]).unwrap()).unwrap();
         print!("\n{}", content);
     }
 }
-fn cmd_vi(fs: &mut FileSystem, cmd_buffer: &[u8], cmd_len: usize) {
+fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 2 {
         print!("\nusage: vi <file>");
         return;
     } else {
         let start = 3;
         let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
-        vi(fs, name.as_bytes());
+        vi(name.as_bytes());
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
