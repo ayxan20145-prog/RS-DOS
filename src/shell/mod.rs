@@ -1,8 +1,11 @@
 use crate::{
+    drivers::{
+        keyboard,
+        vga::{Color, writer},
+    },
     fs::FileSystem,
-    keyboard, print,
-    vga::{Color, writer},
-    vi::vi,
+    print,
+    programs::vi::vi,
 };
 use core::fmt::Write;
 

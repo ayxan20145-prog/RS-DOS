@@ -1,4 +1,4 @@
-use crate::io::inb;
+use crate::drivers::io::inb;
 
 static mut SHIFT_ACTIVE: bool = false;
 

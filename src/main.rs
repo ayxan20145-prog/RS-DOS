@@ -2,20 +2,18 @@
 #![no_main]
 #![allow(static_mut_refs)]
 
-mod cpu;
+mod arch;
+mod drivers;
 mod fs;
-mod io;
-mod keyboard;
 mod panic;
+mod programs;
 mod shell;
-mod vga;
-mod vi;
 
 use core::arch::global_asm;
 
 use crate::fs::FileSystem;
 
-global_asm!(include_str!("boot.asm"));
+global_asm!(include_str!("arch/boot.asm"));
 
 #[unsafe(no_mangle)]
 pub fn kernel_main() -> ! {
@@ -23,5 +21,5 @@ pub fn kernel_main() -> ! {
 
     shell::run(&mut fs);
 
-    cpu::halt();
+    arch::cpu::halt();
 }

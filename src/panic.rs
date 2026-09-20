@@ -1,4 +1,4 @@
-use crate::vga::{Color, Writer};
+use crate::drivers::vga::{Color, Writer};
 use core::{fmt::Write, panic::PanicInfo};
 
 #[panic_handler]

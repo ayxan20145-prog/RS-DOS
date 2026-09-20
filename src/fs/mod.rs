@@ -1,4 +1,4 @@
-use crate::{print, vga::writer};
+use crate::{drivers::vga::writer, print};
 use core::fmt::Write;
 
 const MAX_FILES: usize = 32;

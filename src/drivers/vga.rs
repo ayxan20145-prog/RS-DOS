@@ -1,4 +1,4 @@
-use crate::io::outb;
+use crate::drivers::io::outb;
 use core::fmt::{self, Write};
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;

@@ -1,4 +1,8 @@
-use crate::{fs::FileSystem, keyboard, print, vga::writer};
+use crate::{
+    drivers::{keyboard, vga::writer},
+    fs::FileSystem,
+    print,
+};
 use core::fmt::Write;
 
 enum Mode {
