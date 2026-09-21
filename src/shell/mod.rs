@@ -223,8 +223,8 @@ fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
         return;
     } else {
         let start = 3;
-        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
-        vi(name.as_bytes());
+        let name = &cmd_buffer[start..cmd_len];
+        vi(name);
     }
 }
 fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
@@ -233,8 +233,8 @@ fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
         return;
     } else {
         let start = 3;
-        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
-        fs().create_dir(name.as_bytes());
+        let name = &cmd_buffer[start..cmd_len];
+        fs().create_dir(name);
     }
 }
 fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
@@ -243,8 +243,8 @@ fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
         return;
     } else {
         let start = 3;
-        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
-        fs().remove_dir(name.as_bytes());
+        let name = &cmd_buffer[start..cmd_len];
+        fs().remove_dir(name);
     }
 }
 fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
