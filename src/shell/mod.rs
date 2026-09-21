@@ -50,6 +50,7 @@ pub fn run() {
                             Some("vi") => cmd_vi(&cmd_buffer, cmd_len),
                             Some("md") => cmd_md(&cmd_buffer, cmd_len),
                             Some("rd") => cmd_rd(&cmd_buffer, cmd_len),
+                            Some("calc") => cmd_calc(&cmd_buffer, cmd_len),
 
                             Some(cmd) => {
                                 print!("\nunknown command: {}", cmd);
@@ -80,7 +81,7 @@ pub fn run() {
 }
 fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc"
     );
 }
 fn cmd_cls() {
@@ -253,6 +254,49 @@ fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
         let start = 3;
         let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
         fs().remove_dir(name.as_bytes());
+    }
+}
+fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 4 {
+        print!("\nusage: calc <num1> <op> <num2>");
+        return;
+    } else {
+        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+        let mut parts = line.split_whitespace();
+
+        parts.next();
+
+        let num1 = parts.next();
+        let op = parts.next();
+        let num2 = parts.next();
+
+        match (num1, op, num2) {
+            (Some(num1), Some(op), Some(num2)) => {
+                let num1 = num1.parse::<i32>().unwrap();
+                let num2 = num2.parse::<i32>().unwrap();
+
+                match op {
+                    "+" => {
+                        print!("\n{}", num1 + num2);
+                    }
+                    "-" => {
+                        print!("\n{}", num1 - num2);
+                    }
+                    "*" => {
+                        print!("\n{}", num1 * num2);
+                    }
+                    "/" => {
+                        print!("\n{}", num1 / num2);
+                    }
+                    _ => {
+                        print!("\nunknown operator: {}", op);
+                    }
+                };
+            }
+            _ => {
+                print!("\n");
+            }
+        }
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
