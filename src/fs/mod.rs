@@ -119,10 +119,17 @@ impl FileSystem {
     pub fn list(&self) {
         for file in &self.files {
             if file.used {
-                print!(
-                    "\n{}",
-                    core::str::from_utf8(&file.name[..file.name_len]).unwrap()
-                );
+                if file.is_dir {
+                    print!(
+                        "\n<DIR> {}",
+                        core::str::from_utf8(&file.name[..file.name_len]).unwrap()
+                    );
+                } else {
+                    print!(
+                        "\n      {}",
+                        core::str::from_utf8(&file.name[..file.name_len]).unwrap()
+                    );
+                }
             }
         }
     }
