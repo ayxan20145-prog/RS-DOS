@@ -72,6 +72,9 @@ pub fn run() {
                         } else if cmd_len >= 2 && &cmd_buffer[..2] == b"vi" {
                             cmd_vi(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"md" {
+                            cmd_md(&cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -99,7 +102,7 @@ pub fn run() {
 }
 fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd"
     );
 }
 fn cmd_cls() {
@@ -252,6 +255,16 @@ fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
         let start = 3;
         let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
         vi(name.as_bytes());
+    }
+}
+fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 2 {
+        print!("\nusage: md <name>");
+        return;
+    } else {
+        let start = 3;
+        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+        fs().create_dir(name.as_bytes());
     }
 }
 fn parse_color(name: &str) -> Option<Color> {

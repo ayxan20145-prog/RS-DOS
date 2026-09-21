@@ -16,6 +16,7 @@ pub struct File {
     pub data_len: usize,
 
     pub used: bool,
+    pub is_dir: bool,
 }
 
 pub struct FileSystem {
@@ -32,6 +33,7 @@ impl File {
             data_len: 0,
 
             used: false,
+            is_dir: false,
         }
     }
 }
@@ -57,6 +59,7 @@ impl FileSystem {
                 file.name_len = name.len();
                 file.data_len = 0;
                 file.used = true;
+                file.is_dir = false;
 
                 return true;
             }
@@ -67,7 +70,11 @@ impl FileSystem {
     }
     pub fn write(&mut self, name: &[u8], data: &[u8]) -> bool {
         for file in &mut self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+            if file.used
+                && !file.is_dir
+                && file.name_len == name.len()
+                && &file.name[..file.name_len] == name
+            {
                 if data.len() > MAX_DATA {
                     print!("\nfile too large");
                     return false;
@@ -84,7 +91,11 @@ impl FileSystem {
     }
     pub fn read(&self, name: &[u8]) -> Option<&[u8]> {
         for file in &self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+            if file.used
+                && !file.is_dir
+                && file.name_len == name.len()
+                && &file.name[..file.name_len] == name
+            {
                 return Some(&file.data[..file.data_len]);
             }
         }
@@ -114,6 +125,32 @@ impl FileSystem {
                 );
             }
         }
+    }
+    pub fn create_dir(&mut self, name: &[u8]) -> bool {
+        if name.is_empty() {
+            print!("\ndir name cant be empty");
+            return false;
+        }
+
+        if name.len() > MAX_NAME {
+            print!("\ndir name too long");
+            return false;
+        }
+
+        for file in &mut self.files {
+            if !file.used {
+                file.name[..name.len()].copy_from_slice(name);
+                file.name_len = name.len();
+                file.data_len = 0;
+                file.used = true;
+                file.is_dir = true;
+
+                return true;
+            }
+        }
+
+        print!("\ncouldnt create dir");
+        false
     }
 }
 pub fn fs() -> &'static mut FileSystem {
