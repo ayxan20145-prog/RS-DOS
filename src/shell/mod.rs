@@ -5,7 +5,7 @@ use crate::{
     },
     fs::fs,
     print,
-    programs::vi::vi,
+    programs::{calc::calc, fetch::fetch, vi::vi},
 };
 use core::fmt::Write;
 
@@ -122,16 +122,7 @@ fn cmd_color(cmd_buffer: &[u8], cmd_len: usize) {
     }
 }
 fn cmd_fetch() {
-    print!(
-        r#"
-    ____  _____       ____  ____  _____ user@RS-DOS
-   / __ \/ ___/      / __ \/ __ \/ ___/ -----------
-  / /_/ /\__ \______/ / / / / / /\__ \  OS: RS-DOS
- / _, _/___/ /_____/ /_/ / /_/ /___/ /  Arch: i686
-/_/ |_|/____/     /_____/\____//___/    Resoloution: 80x25
-                                        
-"#
-    );
+    fetch();
 }
 fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
@@ -262,41 +253,7 @@ fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
         return;
     } else {
         let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-        let mut parts = line.split_whitespace();
-
-        parts.next();
-
-        let num1 = parts.next();
-        let op = parts.next();
-        let num2 = parts.next();
-
-        match (num1, op, num2) {
-            (Some(num1), Some(op), Some(num2)) => {
-                let num1 = num1.parse::<i32>().unwrap();
-                let num2 = num2.parse::<i32>().unwrap();
-
-                match op {
-                    "+" => {
-                        print!("\n{}", num1 + num2);
-                    }
-                    "-" => {
-                        print!("\n{}", num1 - num2);
-                    }
-                    "*" => {
-                        print!("\n{}", num1 * num2);
-                    }
-                    "/" => {
-                        print!("\n{}", num1 / num2);
-                    }
-                    _ => {
-                        print!("\nunknown operator: {}", op);
-                    }
-                };
-            }
-            _ => {
-                print!("\n");
-            }
-        }
+        calc(line);
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
