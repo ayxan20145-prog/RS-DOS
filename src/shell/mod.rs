@@ -209,7 +209,6 @@ fn cmd_write(cmd_buffer: &[u8], cmd_len: usize) {
 fn cmd_type(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
         print!("\nusage: type <file>");
-        return;
     } else {
         let start = 5;
         let content =
@@ -220,7 +219,6 @@ fn cmd_type(cmd_buffer: &[u8], cmd_len: usize) {
 fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 2 {
         print!("\nusage: vi <file>");
-        return;
     } else {
         let start = 3;
         let name = &cmd_buffer[start..cmd_len];
@@ -230,7 +228,6 @@ fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
 fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 2 {
         print!("\nusage: md <name>");
-        return;
     } else {
         let start = 3;
         let name = &cmd_buffer[start..cmd_len];
@@ -240,7 +237,6 @@ fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
 fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 2 {
         print!("\nusage: rd <name>");
-        return;
     } else {
         let start = 3;
         let name = &cmd_buffer[start..cmd_len];
@@ -250,7 +246,6 @@ fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
 fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
         print!("\nusage: calc <num1> <op> <num2>");
-        return;
     } else {
         let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
         calc(line);
