@@ -25,64 +25,39 @@ pub fn run() {
                     if cmd_len == 0 {
                         write!(writer(), "\n\nC:\\>").unwrap();
                     } else {
-                        if cmd_len == 4 && &cmd_buffer[..4] == b"help" {
-                            cmd_help();
-                            print!("\nC:\\>");
-                        } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
-                            cmd_cls();
-                            print!("C:\\>");
-                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"echo" {
-                            cmd_echo(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len == 3 && &cmd_buffer[..3] == b"ver" {
-                            cmd_ver();
-                            print!("\nC:\\>");
-                        } else if cmd_len == 4 && &cmd_buffer[..4] == b"halt" {
-                            cmd_halt();
-                            return;
-                        } else if cmd_len == 5 && &cmd_buffer[..5] == b"panic" {
-                            cmd_panic();
-                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"color" {
-                            cmd_color(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len == 5 && &cmd_buffer[..5] == b"fetch" {
-                            cmd_fetch();
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"peek" {
-                            cmd_peek(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"poke" {
-                            cmd_poke(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len == 3 && &cmd_buffer[..3] == b"dir" {
-                            cmd_dir();
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"touch" {
-                            cmd_touch(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 3 && &cmd_buffer[..3] == b"del" {
-                            cmd_del(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 5 && &cmd_buffer[..5] == b"write" {
-                            cmd_write(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 4 && &cmd_buffer[..4] == b"type" {
-                            cmd_type(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"vi" {
-                            cmd_vi(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"md" {
-                            cmd_md(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"rd" {
-                            cmd_rd(&cmd_buffer, cmd_len);
-                            print!("\nC:\\>");
-                        } else {
-                            let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-                            print!("\nunknown command: {}", command);
-                            print!("\nC:\\>");
+                        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                        let mut parts = line.split_whitespace();
+
+                        match parts.next() {
+                            Some("help") => cmd_help(),
+                            Some("cls") => cmd_cls(),
+                            Some("echo") => cmd_echo(&cmd_buffer, cmd_len),
+                            Some("ver") => cmd_ver(),
+                            Some("halt") => {
+                                cmd_halt();
+                                return;
+                            }
+                            Some("panic") => cmd_panic(),
+                            Some("color") => cmd_color(&cmd_buffer, cmd_len),
+                            Some("fetch") => cmd_fetch(),
+                            Some("peek") => cmd_peek(&cmd_buffer, cmd_len),
+                            Some("poke") => cmd_poke(&cmd_buffer, cmd_len),
+                            Some("dir") => cmd_dir(),
+                            Some("touch") => cmd_touch(&cmd_buffer, cmd_len),
+                            Some("del") => cmd_del(&cmd_buffer, cmd_len),
+                            Some("write") => cmd_write(&cmd_buffer, cmd_len),
+                            Some("type") => cmd_type(&cmd_buffer, cmd_len),
+                            Some("vi") => cmd_vi(&cmd_buffer, cmd_len),
+                            Some("md") => cmd_md(&cmd_buffer, cmd_len),
+                            Some("rd") => cmd_rd(&cmd_buffer, cmd_len),
+
+                            Some(cmd) => {
+                                print!("\nunknown command: {}", cmd);
+                            }
+
+                            None => {}
                         }
+                        print!("\nC:\\>");
                     }
                     cmd_len = 0;
                 }
