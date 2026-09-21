@@ -12,8 +12,8 @@ pub fn calc(line: &str) {
 
     match (num1, op, num2) {
         (Some(num1), Some(op), Some(num2)) => {
-            let num1 = num1.parse::<i32>().unwrap();
-            let num2 = num2.parse::<i32>().unwrap();
+            let num1 = num1.parse::<f64>().unwrap();
+            let num2 = num2.parse::<f64>().unwrap();
 
             match op {
                 "+" => {
