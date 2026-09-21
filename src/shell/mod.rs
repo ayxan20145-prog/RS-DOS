@@ -75,6 +75,9 @@ pub fn run() {
                         } else if cmd_len >= 2 && &cmd_buffer[..2] == b"md" {
                             cmd_md(&cmd_buffer, cmd_len);
                             print!("\nC:\\>");
+                        } else if cmd_len >= 2 && &cmd_buffer[..2] == b"rd" {
+                            cmd_rd(&cmd_buffer, cmd_len);
+                            print!("\nC:\\>");
                         } else {
                             let command = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                             print!("\nunknown command: {}", command);
@@ -102,7 +105,7 @@ pub fn run() {
 }
 fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd"
     );
 }
 fn cmd_cls() {
@@ -211,7 +214,7 @@ fn cmd_del(cmd_buffer: &[u8], cmd_len: usize) {
         print!("\nusage: del <name>");
     } else {
         let start = 4;
-        fs().remove(&cmd_buffer[start..cmd_len]);
+        fs().remove_file(&cmd_buffer[start..cmd_len]);
     }
 }
 fn cmd_write(cmd_buffer: &[u8], cmd_len: usize) {
@@ -265,6 +268,16 @@ fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
         let start = 3;
         let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
         fs().create_dir(name.as_bytes());
+    }
+}
+fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 2 {
+        print!("\nusage: rd <name>");
+        return;
+    } else {
+        let start = 3;
+        let name = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+        fs().remove_dir(name.as_bytes());
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
