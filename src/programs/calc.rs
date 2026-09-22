@@ -26,7 +26,11 @@ pub fn calc(line: &str) {
                     print!("\n{}", num1 * num2);
                 }
                 "/" => {
-                    print!("\n{}", num1 / num2);
+                    if num2 == 0.0 {
+                        print!("\ncant divide by zero");
+                    } else {
+                        print!("\n{}", num1 / num2);
+                    }
                 }
                 _ => {
                     print!("\nunknown operator: {}", op);
