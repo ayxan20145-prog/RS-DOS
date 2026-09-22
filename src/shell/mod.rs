@@ -24,13 +24,15 @@ pub fn run() {
                 '\n' => {
                     if cmd_len == 0 {
                         write!(writer(), "\n\nC:\\>").unwrap();
+                    } else if cmd_len == 3 && &cmd_buffer[..3] == b"cls" {
+                        cmd_cls();
+                        print!("C:\\>");
                     } else {
                         let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
                         let mut parts = line.split_whitespace();
 
                         match parts.next() {
                             Some("help") => cmd_help(),
-                            Some("cls") => cmd_cls(),
                             Some("echo") => cmd_echo(&cmd_buffer, cmd_len),
                             Some("ver") => cmd_ver(),
                             Some("halt") => {
