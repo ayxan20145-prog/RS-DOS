@@ -1,14 +1,7 @@
-use crate::arch::io::outb;
+use crate::{WRITER, arch::io::outb};
 use core::fmt::{self, Write};
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
-
-pub static mut WRITER: Writer = Writer {
-    column: 0,
-    row: 0,
-    fg: Color::White,
-    bg: Color::Black,
-};
 
 #[derive(Copy, Clone)]
 #[repr(u8)]
@@ -39,7 +32,7 @@ pub struct Writer {
 }
 
 impl Writer {
-    pub fn new(column: usize, row: usize, fg: Color, bg: Color) -> Self {
+    pub const fn new(column: usize, row: usize, fg: Color, bg: Color) -> Self {
         Self {
             column,
             row,

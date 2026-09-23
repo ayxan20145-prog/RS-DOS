@@ -1,11 +1,9 @@
-use crate::{drivers::vga::writer, print};
+use crate::{FS, drivers::vga::writer, print};
 use core::fmt::Write;
 
 const MAX_FILES: usize = 32;
 const MAX_NAME: usize = 32;
 const MAX_DATA: usize = 1024;
-
-static mut FS: FileSystem = FileSystem::new();
 
 #[derive(Copy, Clone)]
 pub struct File {
