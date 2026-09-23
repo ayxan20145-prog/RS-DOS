@@ -41,20 +41,112 @@ pub fn run() {
                                 return;
                             }
                             Some("panic") => cmd_panic(),
-                            Some("color") => cmd_color(&cmd_buffer, cmd_len),
+                            Some("color") => {
+                                let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                                cmd_color(line);
+                            }
                             Some("fetch") => cmd_fetch(),
-                            Some("peek") => cmd_peek(&cmd_buffer, cmd_len),
-                            Some("poke") => cmd_poke(&cmd_buffer, cmd_len),
+                            Some("peek") => {
+                                if cmd_len == 4 {
+                                    print!("\nusage: peek <addr>");
+                                } else {
+                                    let start = 5;
+                                    let arg =
+                                        core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+                                    cmd_peek(arg);
+                                }
+                            }
+                            Some("poke") => {
+                                if cmd_len == 4 {
+                                    print!("\nusage: poke <addr> <val>");
+                                } else {
+                                    let line =
+                                        core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                                    cmd_poke(line);
+                                }
+                            }
                             Some("dir") => cmd_dir(),
-                            Some("touch") => cmd_touch(&cmd_buffer, cmd_len),
-                            Some("del") => cmd_del(&cmd_buffer, cmd_len),
-                            Some("write") => cmd_write(&cmd_buffer, cmd_len),
-                            Some("type") => cmd_type(&cmd_buffer, cmd_len),
-                            Some("vi") => cmd_vi(&cmd_buffer, cmd_len),
-                            Some("md") => cmd_md(&cmd_buffer, cmd_len),
-                            Some("rd") => cmd_rd(&cmd_buffer, cmd_len),
-                            Some("calc") => cmd_calc(&cmd_buffer, cmd_len),
-                            Some("bat") => cmd_bat(&cmd_buffer, cmd_len),
+                            Some("touch") => {
+                                if cmd_len == 5 {
+                                    print!("\nusage: touch <name>");
+                                } else {
+                                    let start = 6;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_touch(name);
+                                }
+                            }
+                            Some("del") => {
+                                if cmd_len == 3 {
+                                    print!("\nusage: del <name>");
+                                } else {
+                                    let start = 4;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_del(name);
+                                }
+                            }
+                            Some("write") => {
+                                if cmd_len == 5 {
+                                    print!("\nusage: write <name> <data>");
+                                } else {
+                                    let line =
+                                        core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                                    cmd_write(line);
+                                }
+                            }
+                            Some("type") => {
+                                if cmd_len == 4 {
+                                    print!("\nusage: type <name>");
+                                } else {
+                                    let start = 5;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_type(name);
+                                }
+                            }
+                            Some("vi") => {
+                                if cmd_len == 2 {
+                                    print!("\nusage: vi <name>");
+                                } else {
+                                    let start = 3;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_vi(name);
+                                }
+                            }
+                            Some("md") => {
+                                if cmd_len == 2 {
+                                    print!("\nusage: md <name>");
+                                } else {
+                                    let start = 3;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_md(name);
+                                }
+                            }
+                            Some("rd") => {
+                                if cmd_len == 2 {
+                                    print!("\nusage: rd <name>");
+                                } else {
+                                    let start = 3;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_rd(name);
+                                }
+                            }
+                            Some("calc") => {
+                                if cmd_len == 4 {
+                                    print!("\nusage: calc <num1> <op> <num2>");
+                                } else {
+                                    let line =
+                                        core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
+                                    cmd_calc(line);
+                                }
+                            }
+                            Some("bat") => {
+                                if cmd_len == 3 {
+                                    print!("\nusage: bat <name>");
+                                } else {
+                                    let start = 4;
+                                    let name = &cmd_buffer[start..cmd_len];
+                                    cmd_bat(name);
+                                }
+                            }
 
                             Some(cmd) => {
                                 print!("\nunknown command: {}", cmd);
@@ -83,16 +175,16 @@ pub fn run() {
         }
     }
 }
-fn cmd_help() {
+pub fn cmd_help() {
     print!(
         "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat"
     );
 }
-fn cmd_cls() {
+pub fn cmd_cls() {
     writer().clear();
     writer().reset_cursor();
 }
-fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
+pub fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
     if cmd_len == 4 {
         print!("\nusage: echo <text>");
     } else {
@@ -101,17 +193,16 @@ fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
         print!("\n{}", arg);
     }
 }
-fn cmd_ver() {
+pub fn cmd_ver() {
     print!("\n{}", env!("CARGO_PKG_VERSION"));
 }
-fn cmd_halt() {
+pub fn cmd_halt() {
     print!("\nSystem halted");
 }
-fn cmd_panic() {
+pub fn cmd_panic() {
     panic!();
 }
-fn cmd_color(cmd_buffer: &[u8], cmd_len: usize) {
-    let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
+pub fn cmd_color(line: &str) {
     let mut parts = line.split_whitespace();
     parts.next();
 
@@ -125,144 +216,83 @@ fn cmd_color(cmd_buffer: &[u8], cmd_len: usize) {
         }
     }
 }
-fn cmd_fetch() {
+pub fn cmd_fetch() {
     fetch();
 }
-fn cmd_peek(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 4 {
-        print!("\nusage: peek <addr>");
-    } else {
-        let start = 5;
-        let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
-        let addr = string_to_hex(arg);
-        let ptr = addr as *const u8;
-        let value = unsafe { *ptr };
-        print!("\n{}", value);
-    }
+pub fn cmd_peek(arg: &str) {
+    let addr = string_to_hex(arg);
+    let ptr = addr as *const u8;
+    let value = unsafe { *ptr };
+    print!("\n{}", value);
 }
-fn cmd_poke(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 4 {
-        print!("\nusage: poke <addr> <val>");
-    } else {
-        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-        let mut parts = line.split_whitespace();
+pub fn cmd_poke(line: &str) {
+    let mut parts = line.split_whitespace();
 
-        parts.next();
+    parts.next();
 
-        let addr = parts.next();
-        let value = parts.next();
+    let addr = parts.next();
+    let value = parts.next();
 
-        match (addr, value) {
-            (Some(addr), Some(value)) => {
-                let addr = string_to_hex(addr);
-                let value = value.parse::<u8>().unwrap();
+    match (addr, value) {
+        (Some(addr), Some(value)) => {
+            let addr = string_to_hex(addr);
+            let value = value.parse::<u8>().unwrap();
 
-                let ptr = addr as *mut u8;
+            let ptr = addr as *mut u8;
 
-                unsafe {
-                    *ptr = value;
-                }
+            unsafe {
+                *ptr = value;
             }
-            _ => {
-                print!("\n");
-            }
+        }
+        _ => {
+            print!("\n");
         }
     }
 }
-fn cmd_dir() {
+pub fn cmd_dir() {
     fs().list();
 }
-fn cmd_touch(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 5 {
-        print!("\nusage: touch <name>");
-    } else {
-        let start = 6;
-        fs().create(&cmd_buffer[start..cmd_len]);
-    }
+pub fn cmd_touch(name: &[u8]) {
+    fs().create(name);
 }
-fn cmd_del(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 3 {
-        print!("\nusage: del <name>");
-    } else {
-        let start = 4;
-        fs().remove_file(&cmd_buffer[start..cmd_len]);
-    }
+pub fn cmd_del(name: &[u8]) {
+    fs().remove_file(name);
 }
-fn cmd_write(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 5 {
-        print!("\nusage: write <file> <data>");
-    } else {
-        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-        let mut parts = line.split_whitespace();
+pub fn cmd_write(line: &str) {
+    let mut parts = line.split_whitespace();
 
-        parts.next();
+    parts.next();
 
-        let file = parts.next();
-        let data = parts.next();
+    let file = parts.next();
+    let data = parts.next();
 
-        match (file, data) {
-            (Some(file), Some(data)) => {
-                fs().write(file.as_bytes(), data.as_bytes());
-            }
-            _ => {
-                print!("\n");
-            }
+    match (file, data) {
+        (Some(file), Some(data)) => {
+            fs().write(file.as_bytes(), data.as_bytes());
+        }
+        _ => {
+            print!("\n");
         }
     }
 }
-fn cmd_type(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 4 {
-        print!("\nusage: type <file>");
-    } else {
-        let start = 5;
-        let content =
-            core::str::from_utf8(fs().read(&cmd_buffer[start..cmd_len]).unwrap()).unwrap();
-        print!("\n{}", content);
-    }
+pub fn cmd_type(name: &[u8]) {
+    let content = core::str::from_utf8(fs().read(name).unwrap()).unwrap();
+    print!("\n{}", content);
 }
-fn cmd_vi(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 2 {
-        print!("\nusage: vi <file>");
-    } else {
-        let start = 3;
-        let name = &cmd_buffer[start..cmd_len];
-        vi(name);
-    }
+pub fn cmd_vi(name: &[u8]) {
+    vi(name);
 }
-fn cmd_md(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 2 {
-        print!("\nusage: md <name>");
-    } else {
-        let start = 3;
-        let name = &cmd_buffer[start..cmd_len];
-        fs().create_dir(name);
-    }
+pub fn cmd_md(name: &[u8]) {
+    fs().create_dir(name);
 }
-fn cmd_rd(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 2 {
-        print!("\nusage: rd <name>");
-    } else {
-        let start = 3;
-        let name = &cmd_buffer[start..cmd_len];
-        fs().remove_dir(name);
-    }
+pub fn cmd_rd(name: &[u8]) {
+    fs().remove_dir(name);
 }
-fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 4 {
-        print!("\nusage: calc <num1> <op> <num2>");
-    } else {
-        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
-        calc(line);
-    }
+pub fn cmd_calc(line: &str) {
+    calc(line);
 }
-fn cmd_bat(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 3 {
-        print!("\nusage: bat <file>");
-    } else {
-        let start = 4;
-        let name = &cmd_buffer[start..cmd_len];
-        bat(name);
-    }
+pub fn cmd_bat(name: &[u8]) {
+    bat(name);
 }
 fn parse_color(name: &str) -> Option<Color> {
     Some(match name {
