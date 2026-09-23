@@ -34,7 +34,16 @@ pub fn run() {
 
                         match parts.next() {
                             Some("help") => cmd_help(),
-                            Some("echo") => cmd_echo(&cmd_buffer, cmd_len),
+                            Some("echo") => {
+                                if cmd_len == 4 {
+                                    print!("\nusage: echo <text>");
+                                } else {
+                                    let start = 5;
+                                    let text =
+                                        core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap();
+                                    cmd_echo(text);
+                                }
+                            }
                             Some("ver") => cmd_ver(),
                             Some("halt") => {
                                 cmd_halt();
@@ -184,14 +193,8 @@ pub fn cmd_cls() {
     writer().clear();
     writer().reset_cursor();
 }
-pub fn cmd_echo(cmd_buffer: &[u8], cmd_len: usize) {
-    if cmd_len == 4 {
-        print!("\nusage: echo <text>");
-    } else {
-        let start = 5;
-        let arg = core::str::from_utf8(&cmd_buffer[start..cmd_len]).unwrap_or("");
-        print!("\n{}", arg);
-    }
+pub fn cmd_echo(text: &str) {
+    print!("\n{}", text);
 }
 pub fn cmd_ver() {
     print!("\n{}", env!("CARGO_PKG_VERSION"));
