@@ -5,7 +5,7 @@ use crate::{
     },
     fs::fs,
     print,
-    programs::{calc::calc, fetch::fetch, vi::vi},
+    programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
 };
 use core::fmt::Write;
 
@@ -54,6 +54,7 @@ pub fn run() {
                             Some("md") => cmd_md(&cmd_buffer, cmd_len),
                             Some("rd") => cmd_rd(&cmd_buffer, cmd_len),
                             Some("calc") => cmd_calc(&cmd_buffer, cmd_len),
+                            Some("bat") => cmd_bat(&cmd_buffer, cmd_len),
 
                             Some(cmd) => {
                                 print!("\nunknown command: {}", cmd);
@@ -84,7 +85,7 @@ pub fn run() {
 }
 fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat"
     );
 }
 fn cmd_cls() {
@@ -252,6 +253,15 @@ fn cmd_calc(cmd_buffer: &[u8], cmd_len: usize) {
     } else {
         let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap();
         calc(line);
+    }
+}
+fn cmd_bat(cmd_buffer: &[u8], cmd_len: usize) {
+    if cmd_len == 3 {
+        print!("\nusage: bat <file>");
+    } else {
+        let start = 4;
+        let name = &cmd_buffer[start..cmd_len];
+        bat(name);
     }
 }
 fn parse_color(name: &str) -> Option<Color> {
