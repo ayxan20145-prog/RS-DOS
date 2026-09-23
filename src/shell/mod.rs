@@ -11,6 +11,7 @@ use core::fmt::Write;
 
 pub fn run() {
     writer().clear();
+    writer().reset_cursor();
 
     print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
     print!("\nC:\\>");
