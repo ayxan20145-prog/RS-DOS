@@ -292,7 +292,16 @@ pub fn cmd_rd(name: &[u8]) {
     fs().remove_dir(name);
 }
 pub fn cmd_calc(line: &str) {
-    calc(line);
+    let result = calc(line);
+
+    match result {
+        Ok(num) => {
+            print!("\n{}", num);
+        }
+        Err(e) => {
+            print!("\n{}", e);
+        }
+    }
 }
 pub fn cmd_bat(name: &[u8]) {
     bat(name);

@@ -1,7 +1,4 @@
-use crate::{drivers::vga::writer, print};
-use core::fmt::Write;
-
-pub fn calc(line: &str) {
+pub fn calc(line: &str) -> Result<f64, &str> {
     let mut parts = line.split_whitespace();
 
     parts.next();
@@ -17,28 +14,28 @@ pub fn calc(line: &str) {
 
             match op {
                 "+" => {
-                    print!("\n{}", num1 + num2);
+                    return Ok(num1 + num2);
                 }
                 "-" => {
-                    print!("\n{}", num1 - num2);
+                    return Ok(num1 - num2);
                 }
                 "*" => {
-                    print!("\n{}", num1 * num2);
+                    return Ok(num1 * num2);
                 }
                 "/" => {
                     if num2 == 0.0 {
-                        print!("\ncant divide by zero");
+                        return Err("cant divide by zero");
                     } else {
-                        print!("\n{}", num1 / num2);
+                        return Ok(num1 / num2);
                     }
                 }
                 _ => {
-                    print!("\nunknown operator: {}", op);
+                    return Err("unknown operator");
                 }
             };
         }
         _ => {
-            print!("\n");
+            return Err("");
         }
     }
 }
