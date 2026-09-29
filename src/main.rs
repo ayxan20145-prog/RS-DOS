@@ -8,6 +8,7 @@ mod fs;
 mod panic;
 mod programs;
 mod shell;
+mod std;
 
 use crate::{
     drivers::vga::{Color, Writer, writer},

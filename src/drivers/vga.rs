@@ -131,10 +131,3 @@ impl Color {
 pub fn writer() -> &'static mut Writer {
     unsafe { &mut WRITER }
 }
-
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => {
-        write!(writer(), $($arg)*).unwrap();
-    };
-}
