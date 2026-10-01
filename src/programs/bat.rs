@@ -3,9 +3,9 @@ use core::fmt::Write;
 
 pub fn bat(name: &[u8]) {
     let content = match fs().read(name) {
-        Some(smth) => smth,
-        None => {
-            print!("\nusage: bat <name>");
+        Ok(smth) => smth,
+        Err(e) => {
+            print!("\n{}", e);
             return;
         }
     };

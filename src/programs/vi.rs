@@ -41,9 +41,9 @@ impl Mode {
 }
 pub fn vi(name: &[u8]) {
     let content = match fs().read(name) {
-        Some(smth) => smth,
-        None => {
-            print!("\nusage: vi <name>");
+        Ok(smth) => smth,
+        Err(e) => {
+            print!("\n{}", e);
             return;
         }
     };
@@ -75,7 +75,9 @@ pub fn vi(name: &[u8]) {
                     }
                     'w' => {
                         let data = core::str::from_utf8(&editor.buf[..editor.buf_len]).unwrap();
-                        fs().write(name, data.as_bytes());
+                        if let Err(e) = fs().write(name, data.as_bytes()) {
+                            print!("\n{}", e);
+                        }
                     }
                     'i' => {
                         editor.mode = Mode::Insert;

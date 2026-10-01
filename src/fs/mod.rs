@@ -1,4 +1,9 @@
-use crate::{FS, drivers::vga::writer, print};
+use crate::{
+    FS,
+    drivers::vga::writer,
+    print,
+    std::error::{Error, Result},
+};
 use core::fmt::Write;
 
 const MAX_FILES: usize = 32;
@@ -42,13 +47,11 @@ impl FileSystem {
             files: [File::new(); MAX_FILES],
         }
     }
-    pub fn create(&mut self, name: &[u8]) -> bool {
+    pub fn create(&mut self, name: &[u8]) -> Result<()> {
         if name.is_empty() {
-            print!("\nfile name cant be empty");
-            return false;
+            return Err(Error::FileNameEmpty);
         } else if name.len() > MAX_NAME {
-            print!("\nfile name too long");
-            return false;
+            return Err(Error::FileNameTooLong);
         }
 
         for file in &mut self.files {
@@ -59,64 +62,60 @@ impl FileSystem {
                 file.used = true;
                 file.is_dir = false;
 
-                return true;
+                return Ok(());
             }
         }
 
-        print!("\ncouldnt create file");
-        false
+        Err(Error::NoFreeSlot)
     }
-    pub fn write(&mut self, name: &[u8], data: &[u8]) -> bool {
+    pub fn write(&mut self, name: &[u8], data: &[u8]) -> Result<()> {
         for file in &mut self.files {
-            if file.used
-                && !file.is_dir
-                && file.name_len == name.len()
-                && &file.name[..file.name_len] == name
-            {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                if file.is_dir {
+                    return Err(Error::NotAFile);
+                }
+
                 if data.len() > MAX_DATA {
-                    print!("\nfile too large");
-                    return false;
+                    return Err(Error::FileTooLarge);
                 }
 
                 file.data[..data.len()].copy_from_slice(data);
                 file.data_len = data.len();
 
-                return true;
-            }
-        }
-        print!("\ncouldnt write");
-        false
-    }
-    pub fn read(&self, name: &[u8]) -> Option<&[u8]> {
-        for file in &self.files {
-            if file.used
-                && !file.is_dir
-                && file.name_len == name.len()
-                && &file.name[..file.name_len] == name
-            {
-                return Some(&file.data[..file.data_len]);
+                return Ok(());
             }
         }
 
-        None
+        Err(Error::FileNotFound)
     }
-    pub fn remove_file(&mut self, name: &[u8]) -> bool {
+    pub fn read(&self, name: &[u8]) -> Result<&[u8]> {
+        for file in &self.files {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                if file.is_dir {
+                    return Err(Error::NotAFile);
+                }
+                return Ok(&file.data[..file.data_len]);
+            }
+        }
+
+        Err(Error::FileNotFound)
+    }
+    pub fn remove_file(&mut self, name: &[u8]) -> Result<()> {
         for file in &mut self.files {
-            if file.used
-                && !file.is_dir
-                && file.name_len == name.len()
-                && &file.name[..file.name_len] == name
-            {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                if file.is_dir {
+                    return Err(Error::NotAFile);
+                }
+
                 file.used = false;
                 file.name_len = 0;
                 file.name = [0; MAX_NAME];
 
-                return true;
+                return Ok(());
             }
         }
 
-        print!("\ncouldnt delete file");
-        false
+        Err(Error::NotAFile)
     }
     pub fn list(&self) {
         for file in &self.files {
@@ -135,15 +134,13 @@ impl FileSystem {
             }
         }
     }
-    pub fn create_dir(&mut self, name: &[u8]) -> bool {
+    pub fn create_dir(&mut self, name: &[u8]) -> Result<()> {
         if name.is_empty() {
-            print!("\ndir name cant be empty");
-            return false;
+            return Err(Error::DirectoryNameEmpty);
         }
 
         if name.len() > MAX_NAME {
-            print!("\ndir name too long");
-            return false;
+            return Err(Error::DirectoryNameTooLong);
         }
 
         for file in &mut self.files {
@@ -154,30 +151,28 @@ impl FileSystem {
                 file.used = true;
                 file.is_dir = true;
 
-                return true;
+                return Ok(());
             }
         }
 
-        print!("\ncouldnt create dir");
-        false
+        Err(Error::NoFreeSlot)
     }
-    pub fn remove_dir(&mut self, name: &[u8]) -> bool {
+    pub fn remove_dir(&mut self, name: &[u8]) -> Result<()> {
         for file in &mut self.files {
-            if file.used
-                && file.is_dir
-                && file.name_len == name.len()
-                && &file.name[..file.name_len] == name
-            {
+            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+                if !file.is_dir {
+                    return Err(Error::NotADirectory);
+                }
+
                 file.used = false;
                 file.name_len = 0;
                 file.name = [0; MAX_NAME];
 
-                return true;
+                return Ok(());
             }
         }
 
-        print!("\ncouldnt delete dir");
-        false
+        Err(Error::DirectoryNotFound)
     }
 }
 pub fn fs() -> &'static mut FileSystem {

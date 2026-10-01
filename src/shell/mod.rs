@@ -257,10 +257,14 @@ pub fn cmd_dir() {
     fs().list();
 }
 pub fn cmd_touch(name: &[u8]) {
-    fs().create(name);
+    if let Err(e) = fs().create(name) {
+        print!("\n{}", e);
+    }
 }
 pub fn cmd_del(name: &[u8]) {
-    fs().remove_file(name);
+    if let Err(e) = fs().remove_file(name) {
+        print!("\n{}", e);
+    }
 }
 pub fn cmd_write(line: &str) {
     let mut parts = line.split_whitespace();
@@ -272,7 +276,9 @@ pub fn cmd_write(line: &str) {
 
     match (file, data) {
         (Some(file), Some(data)) => {
-            fs().write(file.as_bytes(), data.as_bytes());
+            if let Err(e) = fs().write(file.as_bytes(), data.as_bytes()) {
+                print!("\n{}", e);
+            }
         }
         _ => {
             print!("\n");
@@ -281,16 +287,33 @@ pub fn cmd_write(line: &str) {
 }
 pub fn cmd_type(name: &[u8]) {
     let content = core::str::from_utf8(fs().read(name).unwrap()).unwrap();
+    match fs().read(name) {
+        Ok(content) => match core::str::from_utf8(content) {
+            Ok(text) => {
+                print!("\n{}", text);
+            }
+            Err(_) => {
+                print!("\ninvalid utf-8");
+            }
+        },
+        Err(e) => {
+            print!("\n{}", e);
+        }
+    }
     print!("\n{}", content);
 }
 pub fn cmd_vi(name: &[u8]) {
     vi(name);
 }
 pub fn cmd_md(name: &[u8]) {
-    fs().create_dir(name);
+    if let Err(e) = fs().create_dir(name) {
+        print!("\n{}", e);
+    }
 }
 pub fn cmd_rd(name: &[u8]) {
-    fs().remove_dir(name);
+    if let Err(e) = fs().remove_dir(name) {
+        print!("\n{}", e);
+    }
 }
 pub fn cmd_calc(line: &str) {
     let result = calc(line);
