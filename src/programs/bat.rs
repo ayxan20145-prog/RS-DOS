@@ -2,7 +2,14 @@ use crate::{drivers::vga::writer, fs::fs, print, shell::*};
 use core::fmt::Write;
 
 pub fn bat(name: &[u8]) {
-    let content = core::str::from_utf8(fs().read(name).unwrap()).unwrap();
+    let content = match fs().read(name) {
+        Some(smth) => smth,
+        None => {
+            print!("\nusage: bat <name>");
+            return;
+        }
+    };
+    let content = core::str::from_utf8(content).unwrap();
 
     for line in content.lines() {
         let mut parts = line.split_whitespace();

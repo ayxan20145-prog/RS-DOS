@@ -40,6 +40,14 @@ impl Mode {
     }
 }
 pub fn vi(name: &[u8]) {
+    let content = match fs().read(name) {
+        Some(smth) => smth,
+        None => {
+            print!("\nusage: vi <name>");
+            return;
+        }
+    };
+
     writer().clear();
     writer().reset_cursor();
 
@@ -50,8 +58,6 @@ pub fn vi(name: &[u8]) {
     };
 
     editor.mode.display();
-
-    let content = fs().read(name).unwrap();
 
     editor.buf[..content.len()].copy_from_slice(content);
     editor.buf_len = content.len();
