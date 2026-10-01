@@ -6,7 +6,10 @@ use crate::{
     fs::fs,
     print,
     programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
-    std::string::string_to_hex,
+    std::{
+        error::{Error, Result},
+        string::string_to_hex,
+    },
 };
 use core::fmt::Write;
 
@@ -210,11 +213,17 @@ pub fn cmd_color(line: &str) {
     let mut parts = line.split_whitespace();
     parts.next();
 
-    let fg = parts.next().and_then(parse_color);
-    let bg = parts.next().and_then(parse_color);
+    let fg = parts
+        .next()
+        .ok_or(Error::MissingArgument)
+        .and_then(parse_color);
+    let bg = parts
+        .next()
+        .ok_or(Error::MissingArgument)
+        .and_then(parse_color);
 
     match (fg, bg) {
-        (Some(fg), Some(bg)) => writer().set_color(fg, bg),
+        (Ok(fg), Ok(bg)) => writer().set_color(fg, bg),
         _ => {
             print!("\nusage: color <fg> <bg>");
         }
@@ -224,7 +233,13 @@ pub fn cmd_fetch() {
     fetch();
 }
 pub fn cmd_peek(arg: &str) {
-    let addr = string_to_hex(arg);
+    let addr = match string_to_hex(arg) {
+        Ok(addr) => addr,
+        Err(e) => {
+            print!("\n{}", e);
+            return;
+        }
+    };
     let ptr = addr as *const u8;
     let value = unsafe { *ptr };
     print!("\n{}", value);
@@ -239,8 +254,21 @@ pub fn cmd_poke(line: &str) {
 
     match (addr, value) {
         (Some(addr), Some(value)) => {
-            let addr = string_to_hex(addr);
-            let value = value.parse::<u8>().unwrap();
+            let addr = match string_to_hex(addr) {
+                Ok(addr) => addr,
+                Err(e) => {
+                    print!("\n{}", e);
+                    return;
+                }
+            };
+
+            let value = match value.parse::<u8>() {
+                Ok(v) => v,
+                Err(_) => {
+                    print!("\n{}", Error::InvalidNumber);
+                    return;
+                }
+            };
 
             let ptr = addr as *mut u8;
 
@@ -286,21 +314,22 @@ pub fn cmd_write(line: &str) {
     }
 }
 pub fn cmd_type(name: &[u8]) {
-    let content = core::str::from_utf8(fs().read(name).unwrap()).unwrap();
-    match fs().read(name) {
-        Ok(content) => match core::str::from_utf8(content) {
-            Ok(text) => {
-                print!("\n{}", text);
-            }
-            Err(_) => {
-                print!("\ninvalid utf-8");
-            }
-        },
+    let content = match fs().read(name) {
+        Ok(content) => content,
         Err(e) => {
             print!("\n{}", e);
+            return;
+        }
+    };
+
+    match core::str::from_utf8(content) {
+        Ok(text) => {
+            print!("\n{}", text);
+        }
+        Err(_) => {
+            print!("\n{}", Error::InvalidArgument);
         }
     }
-    print!("\n{}", content);
 }
 pub fn cmd_vi(name: &[u8]) {
     vi(name);
@@ -330,8 +359,8 @@ pub fn cmd_calc(line: &str) {
 pub fn cmd_bat(name: &[u8]) {
     bat(name);
 }
-fn parse_color(name: &str) -> Option<Color> {
-    Some(match name {
+fn parse_color(name: &str) -> Result<Color> {
+    Ok(match name {
         "black" => Color::Black,
         "blue" => Color::Blue,
         "green" => Color::Green,
@@ -348,6 +377,6 @@ fn parse_color(name: &str) -> Option<Color> {
         "pink" => Color::Pink,
         "yellow" => Color::Yellow,
         "white" => Color::White,
-        _ => return None,
+        _ => return Err(Error::InvalidColor),
     })
 }

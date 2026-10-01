@@ -2,6 +2,7 @@ use crate::{
     drivers::{keyboard, vga::writer},
     fs::fs,
     print,
+    std::error::Error,
 };
 use core::fmt::Write;
 
@@ -62,7 +63,15 @@ pub fn vi(name: &[u8]) {
     editor.buf[..content.len()].copy_from_slice(content);
     editor.buf_len = content.len();
 
-    print!("{}", core::str::from_utf8(content).unwrap());
+    let content = match core::str::from_utf8(content) {
+        Ok(s) => s,
+        Err(_) => {
+            print!("\n{}", Error::InvalidArgument);
+            return;
+        }
+    };
+
+    print!("{}", content);
 
     loop {
         if let Some(key) = keyboard::read_key() {
@@ -74,8 +83,7 @@ pub fn vi(name: &[u8]) {
                         return;
                     }
                     'w' => {
-                        let data = core::str::from_utf8(&editor.buf[..editor.buf_len]).unwrap();
-                        if let Err(e) = fs().write(name, data.as_bytes()) {
+                        if let Err(e) = fs().write(name, &editor.buf[..editor.buf_len]) {
                             print!("\n{}", e);
                         }
                     }
