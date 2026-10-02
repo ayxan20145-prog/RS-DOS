@@ -4,11 +4,18 @@ alias = "iso"
 [tasks.iso]
 description = "build iso"
 script = [
-    "cargo build",
+    "cargo +nightly build --target i686-unknown-none.json -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem",
     "mkdir -p iso/boot/grub",
     "cp grub.cfg iso/boot/grub",
     "cp target/i686-unknown-none/debug/RS-DOS iso/boot/RS-DOS",
-    "grub-mkrescue -o RS-DOS.iso iso"
+    "grub-mkrescue -o RS-DOS.iso iso",
+]
+
+[tasks.run]
+description = "run in qemu"
+dependencies = ["iso"]
+script = [
+    "qemu-system-i386 -cdrom RS-DOS.iso",
 ]
 
 [tasks.clean]
@@ -16,12 +23,5 @@ description = "remove build files"
 clear = true
 script = [
     "cargo clean",
-    "rm -rf iso RS-DOS.iso"
-]
-
-[tasks.run]
-description = "run in qemu"
-dependencies = ["iso"]
-script = [
-    "qemu-system-i386 -cdrom RS-DOS.iso"
+    "rm -rf iso RS-DOS.iso",
 ]
