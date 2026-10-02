@@ -17,3 +17,4 @@ Commands:
 - `cargo make iso` builds `RS-DOS.iso`
 - `cargo make run` runs `RS-DOS.iso` in qemu
 - `cargo make clean` removes build files
+- `cargo make check` checks if the code compiles

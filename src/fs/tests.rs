@@ -41,3 +41,14 @@ fn read_dir_as_file() {
     fs.create_dir(b"dir").unwrap();
     assert_eq!(fs.read(b"dir"), Err(Error::NotAFile));
 }
+
+#[test]
+fn no_slots_left() {
+    let mut fs = FileSystem::new();
+
+    for _ in 0..MAX_FILES {
+        fs.create(b"hi").unwrap();
+    }
+
+    assert_eq!(fs.create(b"hi"), Err(Error::NoFreeSlot));
+}

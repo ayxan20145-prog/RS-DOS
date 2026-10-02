@@ -25,3 +25,10 @@ script = [
     "cargo clean",
     "rm -rf iso RS-DOS.iso",
 ]
+
+[tasks.check]
+description = "cargo check"
+clear = true
+script = [
+    "cargo +nightly check --target i686-unknown-none.json -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem",
+]
