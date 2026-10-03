@@ -1,5 +1,3 @@
-use alloc::vec::Vec;
-
 use crate::{
     drivers::{
         keyboard::{self, Key},
@@ -10,7 +8,7 @@ use crate::{
     programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
     std::{
         error::{Error, Result},
-        string::string_to_hex,
+        str::string_to_hex,
     },
     tui,
 };

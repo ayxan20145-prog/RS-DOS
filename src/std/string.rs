@@ -1,12 +1,17 @@
-use crate::std::error::{Error, Result};
+use core::ptr::null_mut;
 
-pub fn string_to_hex(s: &str) -> Result<u32> {
-    let mut val: u32 = 0;
+pub struct String {
+    ptr: *mut u8,
+    len: usize,
+    cap: usize,
+}
 
-    for c in s.trim_start_matches("0x").chars() {
-        let byte = c.to_digit(16).ok_or(Error::InvalidAddress)?;
-        val = (val << 4) | byte;
+impl String {
+    pub fn new() -> Self {
+        Self {
+            ptr: null_mut(),
+            len: 0,
+            cap: 0,
+        }
     }
-
-    Ok(val)
 }
