@@ -3,8 +3,6 @@ use crate::std::error::{Error, Result};
 pub fn calc(line: &str) -> Result<f64> {
     let mut parts = line.split_whitespace();
 
-    parts.next();
-
     let num1 = parts.next();
     let op = parts.next();
     let num2 = parts.next();
