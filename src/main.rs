@@ -10,6 +10,7 @@ mod panic;
 mod programs;
 mod shell;
 mod std;
+mod tui;
 
 use crate::{
     drivers::vga::{Color, Writer, writer},
