@@ -13,15 +13,18 @@ use crate::{
 };
 use core::fmt::Write;
 
+const PROMPT: &str = "C:\\>";
+
 pub fn run() {
     writer().clear();
     writer().reset_cursor();
 
     print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
-    print!("\nC:\\>");
+    print!("\n{}", PROMPT);
 
     let mut cmd_buffer = [0u8; 256];
     let mut cmd_len = 0;
+    let mut cursor = 0;
 
     loop {
         let key = match keyboard::read_key() {
@@ -32,36 +35,88 @@ pub fn run() {
         match key {
             Key::Char('\n') => {
                 if cmd_len == 0 {
-                    print!("\n\nC:\\>");
+                    print!("\n\n{}", PROMPT);
                 } else {
                     let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
 
                     if line == "cls" {
                         cmd_cls();
-                        print!("C:\\>");
+                        print!("{}", PROMPT);
                     } else {
                         execute(line);
-                        print!("\nC:\\>");
+                        print!("\n{}", PROMPT);
                     }
                 }
                 cmd_len = 0;
+                cursor = 0;
             }
             Key::Char('\x08') => {
-                if cmd_len > 0 {
+                let at_end = cursor == cmd_len;
+                if cursor > 0 {
+                    for i in cursor - 1..cmd_len - 1 {
+                        cmd_buffer[i] = cmd_buffer[i + 1];
+                    }
                     cmd_len -= 1;
-                    writer().write_byte(b'\x08');
+                    cursor -= 1;
+
+                    if at_end {
+                        writer().write_byte(b'\x08');
+                    } else {
+                        repaint(&cmd_buffer[..cmd_len], cursor);
+                    }
                 }
             }
             Key::Char(c) => {
-                if cmd_len < 256 {
-                    cmd_buffer[cmd_len] = c as u8;
+                if cmd_len < cmd_buffer.len() {
+                    for i in (cursor..cmd_len).rev() {
+                        cmd_buffer[i + 1] = cmd_buffer[i];
+                    }
+                    cmd_buffer[cursor] = c as u8;
                     cmd_len += 1;
-                    print!("{}", c);
+                    cursor += 1;
+
+                    if cursor == cmd_len {
+                        print!("{}", c);
+                    } else {
+                        repaint(&cmd_buffer[..cmd_len], cursor);
+                    }
                 }
             }
-            Key::Up | Key::Down | Key::Left | Key::Right => {}
+            Key::Left => {
+                if cursor > 0 {
+                    cursor -= 1;
+                    writer().column = PROMPT.len() + cursor;
+                    writer().update_cursor(writer().column, writer().row);
+                }
+            }
+            Key::Right => {
+                if cursor < cmd_len {
+                    cursor += 1;
+                    writer().column = PROMPT.len() + cursor;
+                    writer().update_cursor(writer().column, writer().row);
+                }
+            }
+
+            Key::Up | Key::Down => {}
         }
     }
+}
+fn repaint(buffer: &[u8], cursor: usize) {
+    let row = writer().row;
+
+    writer().column = 0;
+    writer().write_string(PROMPT);
+    for &b in buffer {
+        writer().write_byte(b);
+    }
+
+    while writer().column < 79 {
+        writer().write_byte(b' ');
+    }
+
+    writer().column = PROMPT.len() + cursor;
+    writer().row = row;
+    writer().update_cursor(writer().column, writer().row);
 }
 pub fn execute(line: &str) {
     let mut parts = line.split_whitespace();
