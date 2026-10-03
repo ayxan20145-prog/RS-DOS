@@ -1,4 +1,7 @@
-use core::{alloc::Layout, ptr::null_mut};
+use core::{
+    alloc::Layout,
+    ptr::{self, null_mut},
+};
 
 pub struct String {
     ptr: *mut u8,
@@ -22,5 +25,14 @@ impl String {
         if new_ptr.is_null() {
             panic!("allocation failed");
         }
+
+        if self.len > 0 {
+            unsafe {
+                ptr::copy_nonoverlapping(self.ptr, new_ptr, self.len);
+            }
+        }
+
+        self.ptr = new_ptr;
+        self.cap = new_cap;
     }
 }
