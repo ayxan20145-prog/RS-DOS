@@ -9,6 +9,7 @@ use crate::{
     std::{
         error::{Error, Result},
         str::string_to_hex,
+        string::String,
     },
     tui,
 };
@@ -150,6 +151,7 @@ pub fn execute(line: &str) {
         "calc" => cmd_calc(args),
         "bat" => cmd_bat(args.as_bytes()),
         "tui" => cmd_tui(),
+        "string" => cmd_string(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -323,6 +325,11 @@ pub fn cmd_bat(name: &[u8]) {
 }
 pub fn cmd_tui() {
     tui::draw_text(0, 0, "hi", Color::Red, Color::Black);
+}
+pub fn cmd_string() {
+    let mut s = String::from("salam");
+    s.push_str(" netersen");
+    print!("\n{}", s);
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {

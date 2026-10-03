@@ -1,5 +1,6 @@
 use core::{
     alloc::Layout,
+    fmt,
     ptr::{self, null_mut},
 };
 
@@ -28,6 +29,11 @@ impl String {
 
         self.len += 1;
     }
+    pub fn push_str(&mut self, text: &str) {
+        for byte in text.as_bytes() {
+            self.push(*byte);
+        }
+    }
     pub fn grow(&mut self) {
         let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
         let layout = Layout::array::<u8>(new_cap).unwrap();
@@ -45,5 +51,21 @@ impl String {
 
         self.ptr = new_ptr;
         self.cap = new_cap;
+    }
+    pub fn as_str(&self) -> &str {
+        unsafe { core::str::from_utf8_unchecked(core::slice::from_raw_parts(self.ptr, self.len)) }
+    }
+}
+
+impl From<&str> for String {
+    fn from(value: &str) -> Self {
+        let mut string = Self::new();
+        string.push_str(value);
+        string
+    }
+}
+impl fmt::Display for String {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
     }
 }
