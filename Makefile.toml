@@ -1,21 +1,47 @@
+[env]
+TARGET = "i686-unknown-none.json"
+BINARY = "RS-DOS"
+ISO = "RS-DOS.iso"
+ISO_DIR = "iso"
+BOOT_DIR = "${ISO_DIR}/boot"
+GRUB_DIR = "${BOOT_DIR}/grub"
+TARGET_DIR = "target/i686-unknown-none/debug"
+
+CARGO = "cargo +nightly"
+BUILD_FLAGS = "--target ${TARGET} -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem"
+
 [tasks.default]
-alias = "iso"
+alias = "build"
+
+[tasks.build]
+description = "build kernel"
+clear = true
+script = [
+    "${CARGO} build ${BUILD_FLAGS}",
+]
 
 [tasks.iso]
-description = "build iso"
+description = "build ISO"
+dependencies = ["build"]
 script = [
-    "cargo +nightly build --target i686-unknown-none.json -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem",
-    "mkdir -p iso/boot/grub",
-    "cp grub.cfg iso/boot/grub",
-    "cp target/i686-unknown-none/debug/RS-DOS iso/boot/RS-DOS",
-    "grub-mkrescue -o RS-DOS.iso iso",
+    "mkdir -p ${GRUB_DIR}",
+    "cp grub.cfg ${GRUB_DIR}/",
+    "cp ${TARGET_DIR}/${BINARY} ${BOOT_DIR}/${BINARY}",
+    "grub-mkrescue -o ${ISO} ${ISO_DIR}",
 ]
 
 [tasks.run]
-description = "run in qemu"
+description = "run in QEMU"
 dependencies = ["iso"]
 script = [
-    "qemu-system-i386 -cdrom RS-DOS.iso",
+    "qemu-system-i386 -cdrom ${ISO}",
+]
+
+[tasks.check]
+description = "cargo check"
+clear = true
+script = [
+    "${CARGO} check ${BUILD_FLAGS}",
 ]
 
 [tasks.clean]
@@ -23,12 +49,5 @@ description = "remove build files"
 clear = true
 script = [
     "cargo clean",
-    "rm -rf iso RS-DOS.iso",
-]
-
-[tasks.check]
-description = "cargo check"
-clear = true
-script = [
-    "cargo +nightly check --target i686-unknown-none.json -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem",
+    "rm -rf ${ISO_DIR} ${ISO}",
 ]
