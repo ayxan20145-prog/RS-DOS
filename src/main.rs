@@ -3,6 +3,7 @@
 #![allow(static_mut_refs)]
 #![cfg_attr(test, allow(dead_code))]
 
+mod allocator;
 mod arch;
 mod drivers;
 mod fs;
@@ -11,6 +12,8 @@ mod programs;
 mod shell;
 mod std;
 mod tui;
+
+extern crate alloc;
 
 use crate::{
     drivers::vga::{Color, Writer, writer},
