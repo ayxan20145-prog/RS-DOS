@@ -1,6 +1,6 @@
 use crate::{
     drivers::{
-        keyboard,
+        keyboard::{self, Key},
         vga::{Color, writer},
     },
     fs::fs,
@@ -24,38 +24,42 @@ pub fn run() {
     let mut cmd_len = 0;
 
     loop {
-        if let Some(key) = keyboard::read_key() {
-            match key {
-                '\n' => {
-                    if cmd_len == 0 {
-                        print!("\n\nC:\\>");
-                    } else {
-                        let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
+        let key = match keyboard::read_key() {
+            Some(k) => k,
+            None => continue,
+        };
 
-                        if line == "cls" {
-                            cmd_cls();
-                            print!("C:\\>");
-                        } else {
-                            execute(line);
-                            print!("\nC:\\>");
-                        }
+        match key {
+            Key::Char('\n') => {
+                if cmd_len == 0 {
+                    print!("\n\nC:\\>");
+                } else {
+                    let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
+
+                    if line == "cls" {
+                        cmd_cls();
+                        print!("C:\\>");
+                    } else {
+                        execute(line);
+                        print!("\nC:\\>");
                     }
-                    cmd_len = 0;
                 }
-                '\x08' => {
-                    if cmd_len > 0 {
-                        cmd_len -= 1;
-                        writer().write_byte(b'\x08');
-                    }
-                }
-                _ => {
-                    if cmd_len < 256 {
-                        cmd_buffer[cmd_len] = key as u8;
-                        cmd_len += 1;
-                        print!("{}", key);
-                    }
+                cmd_len = 0;
+            }
+            Key::Char('\x08') => {
+                if cmd_len > 0 {
+                    cmd_len -= 1;
+                    writer().write_byte(b'\x08');
                 }
             }
+            Key::Char(c) => {
+                if cmd_len < 256 {
+                    cmd_buffer[cmd_len] = c as u8;
+                    cmd_len += 1;
+                    print!("{}", c);
+                }
+            }
+            Key::Up | Key::Down | Key::Left | Key::Right => {}
         }
     }
 }

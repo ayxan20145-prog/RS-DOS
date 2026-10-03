@@ -1,5 +1,8 @@
 use crate::{
-    drivers::{keyboard, vga::writer},
+    drivers::{
+        keyboard::{self, Key},
+        vga::writer,
+    },
     fs::fs,
     print,
     std::error::Error,
@@ -74,52 +77,54 @@ pub fn vi(name: &[u8]) {
     print!("{}", content);
 
     loop {
-        if let Some(key) = keyboard::read_key() {
-            match editor.mode {
-                Mode::Normal => match key {
-                    'q' => {
-                        writer().clear();
-                        writer().reset_cursor();
-                        return;
+        let key = match keyboard::read_key() {
+            Some(Key::Char(c)) => c,
+            _ => continue,
+        };
+        match editor.mode {
+            Mode::Normal => match key {
+                'q' => {
+                    writer().clear();
+                    writer().reset_cursor();
+                    return;
+                }
+                'w' => {
+                    if let Err(e) = fs().write(name, &editor.buf[..editor.buf_len]) {
+                        print!("\n{}", e);
                     }
-                    'w' => {
-                        if let Err(e) = fs().write(name, &editor.buf[..editor.buf_len]) {
-                            print!("\n{}", e);
-                        }
+                }
+                'i' => {
+                    editor.mode = Mode::Insert;
+                    editor.mode.display();
+                }
+                _ => {}
+            },
+            Mode::Insert => match key {
+                '\n' => {
+                    if editor.buf_len < editor.buf.len() {
+                        editor.buf[editor.buf_len] = b'\n';
+                        editor.buf_len += 1;
+                        writer().write_byte(b'\n');
                     }
-                    'i' => {
-                        editor.mode = Mode::Insert;
-                        editor.mode.display();
+                }
+                '\x08' => {
+                    if editor.buf_len > 0 {
+                        editor.buf_len -= 1;
+                        writer().write_byte(b'\x08');
                     }
-                    _ => {}
-                },
-                Mode::Insert => match key {
-                    '\n' => {
-                        if editor.buf_len < editor.buf.len() {
-                            editor.buf[editor.buf_len] = b'\n';
-                            editor.buf_len += 1;
-                            writer().write_byte(b'\n');
-                        }
+                }
+                '\x1B' => {
+                    editor.mode = Mode::Normal;
+                    editor.mode.display();
+                }
+                _ => {
+                    if editor.buf_len < 256 {
+                        editor.buf[editor.buf_len] = key as u8;
+                        editor.buf_len += 1;
+                        print!("{}", key);
                     }
-                    '\x08' => {
-                        if editor.buf_len > 0 {
-                            editor.buf_len -= 1;
-                            writer().write_byte(b'\x08');
-                        }
-                    }
-                    '\x1B' => {
-                        editor.mode = Mode::Normal;
-                        editor.mode.display();
-                    }
-                    _ => {
-                        if editor.buf_len < 256 {
-                            editor.buf[editor.buf_len] = key as u8;
-                            editor.buf_len += 1;
-                            print!("{}", key);
-                        }
-                    }
-                },
-            }
+                }
+            },
         }
     }
 }

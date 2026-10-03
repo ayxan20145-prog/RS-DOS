@@ -2,6 +2,14 @@ use crate::arch::io::inb;
 
 static mut SHIFT_ACTIVE: bool = false;
 
+pub enum Key {
+    Char(char),
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 pub const BASE_KEYMAP: [Option<char>; 128] = {
     let mut map = [None; 128];
 
@@ -137,7 +145,7 @@ pub fn read_scancode() -> u8 {
     inb(0x60)
 }
 
-pub fn read_key() -> Option<char> {
+pub fn read_key() -> Option<Key> {
     let scancode = read_scancode();
 
     match scancode {
@@ -154,14 +162,20 @@ pub fn read_key() -> Option<char> {
             None
         }
 
+        0x48 => Some(Key::Up),
+        0x50 => Some(Key::Down),
+        0x4b => Some(Key::Left),
+        0x4d => Some(Key::Right),
+
         scancode if (scancode & 0x80) != 0 => None,
 
         scancode => unsafe {
-            if SHIFT_ACTIVE {
-                SHIFT_KEYMAP[scancode as usize]
+            let map = if SHIFT_ACTIVE {
+                &SHIFT_KEYMAP
             } else {
-                BASE_KEYMAP[scancode as usize]
-            }
+                &BASE_KEYMAP
+            };
+            map[scancode as usize].map(Key::Char)
         },
     }
 }
