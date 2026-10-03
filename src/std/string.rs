@@ -17,6 +17,17 @@ impl String {
             cap: 0,
         }
     }
+    pub fn push(&mut self, byte: u8) {
+        if self.len == self.cap {
+            self.grow();
+        }
+
+        unsafe {
+            self.ptr.add(self.len).write(byte);
+        }
+
+        self.len += 1;
+    }
     pub fn grow(&mut self) {
         let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
         let layout = Layout::array::<u8>(new_cap).unwrap();
