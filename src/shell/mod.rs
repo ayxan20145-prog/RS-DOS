@@ -10,6 +10,7 @@ use crate::{
         error::{Error, Result},
         string::string_to_hex,
     },
+    tui,
 };
 use core::fmt::Write;
 
@@ -25,6 +26,8 @@ pub fn run() {
     let mut cmd_buffer = [0u8; 256];
     let mut cmd_len = 0;
     let mut cursor = 0;
+
+    tui::clear(b' ', Color::Black, Color::Red);
 
     loop {
         let key = match keyboard::read_key() {

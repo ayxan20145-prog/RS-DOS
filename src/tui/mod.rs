@@ -7,3 +7,6 @@ pub fn draw_rect(x: u32, y: u32, width: u32, height: u32, byte: u8, fg: Color, b
         }
     }
 }
+pub fn clear(byte: u8, fg: Color, bg: Color) {
+    draw_rect(0, 0, 80, 25, byte, fg, bg);
+}
