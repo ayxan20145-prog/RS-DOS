@@ -322,7 +322,7 @@ pub fn cmd_bat(name: &[u8]) {
     bat(name);
 }
 pub fn cmd_tui() {
-    tui::clear(b'a', Color::Black, Color::Green);
+    tui::draw_text(0, 0, "hi", Color::Red, Color::Black);
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
