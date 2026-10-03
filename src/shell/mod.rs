@@ -27,8 +27,6 @@ pub fn run() {
     let mut cmd_len = 0;
     let mut cursor = 0;
 
-    tui::clear(b' ', Color::Black, Color::Red);
-
     loop {
         let key = match keyboard::read_key() {
             Some(k) => k,
@@ -151,6 +149,7 @@ pub fn execute(line: &str) {
         "rd" => cmd_rd(args.as_bytes()),
         "calc" => cmd_calc(args),
         "bat" => cmd_bat(args.as_bytes()),
+        "tui" => cmd_tui(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -321,6 +320,9 @@ pub fn cmd_calc(args: &str) {
 }
 pub fn cmd_bat(name: &[u8]) {
     bat(name);
+}
+pub fn cmd_tui() {
+    tui::clear(b'a', Color::Black, Color::Green);
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
