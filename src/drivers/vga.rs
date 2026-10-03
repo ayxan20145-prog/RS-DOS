@@ -76,12 +76,7 @@ impl Writer {
             self.reset_cursor();
         }
 
-        unsafe {
-            let position = self.row * 80 + self.column;
-
-            *VGA_BUFFER.add(position * 2) = byte;
-            *VGA_BUFFER.add(position * 2 + 1) = self.color_byte();
-        }
+        write_byte_at(self.column, self.row, byte, self.fg, self.bg);
 
         self.column += 1;
         self.update_cursor(self.column, self.row);
@@ -92,10 +87,9 @@ impl Writer {
         }
     }
     pub fn clear(&mut self) {
-        for i in 0..2000 {
-            unsafe {
-                *VGA_BUFFER.add(i * 2) = b' ';
-                *VGA_BUFFER.add(i * 2 + 1) = self.color_byte();
+        for y in 0..25 {
+            for x in 0..80 {
+                write_byte_at(x, y, b' ', self.fg, self.bg);
             }
         }
     }
@@ -111,6 +105,19 @@ impl Writer {
         self.column = 0;
         self.row = 0;
         self.update_cursor(0, 0);
+    }
+}
+
+pub fn write_byte_at(x: usize, y: usize, byte: u8, fg: Color, bg: Color) {
+    if x >= 80 || y >= 25 {
+        return;
+    }
+
+    let index = y * 80 + x;
+
+    unsafe {
+        *VGA_BUFFER.add(index * 2) = byte;
+        *VGA_BUFFER.add(index * 2 + 1) = Color::vga_color(fg, bg);
     }
 }
 
