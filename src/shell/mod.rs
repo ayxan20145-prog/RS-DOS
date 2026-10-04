@@ -8,6 +8,7 @@ use crate::{
     print,
     programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
     std::{
+        boxed::Box,
         error::{Error, Result},
         str::string_to_hex,
         string::String,
@@ -155,6 +156,7 @@ pub fn execute(line: &str) {
         "tui" => cmd_tui(),
         "string" => cmd_string(),
         "vec" => cmd_vec(),
+        "box" => cmd_box(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -345,6 +347,10 @@ pub fn cmd_vec() {
     for i in 0..v.len() {
         print!("{} ", v.get(i).unwrap());
     }
+}
+pub fn cmd_box() {
+    let hi = Box::new(5);
+    print!("\n{:p}", hi.as_ptr());
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
