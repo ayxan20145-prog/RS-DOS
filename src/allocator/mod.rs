@@ -1,7 +1,4 @@
-use alloc::alloc::{GlobalAlloc, Layout};
-
-#[global_allocator]
-pub static mut ALLOCATOR: BumpAllocator = BumpAllocator::new();
+use core::alloc::{GlobalAlloc, Layout};
 
 static mut NEXT: usize = 0;
 

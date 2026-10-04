@@ -8,7 +8,7 @@ GRUB_DIR = "${BOOT_DIR}/grub"
 TARGET_DIR = "target/i686-unknown-none/debug"
 
 CARGO = "cargo +nightly"
-BUILD_FLAGS = "--target ${TARGET} -Zbuild-std=core,compiler_builtins,alloc -Zbuild-std-features=compiler-builtins-mem"
+BUILD_FLAGS = "--target ${TARGET} -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem"
 
 [tasks.default]
 alias = "build"
