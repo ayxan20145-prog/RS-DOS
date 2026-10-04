@@ -1,4 +1,8 @@
-use core::ptr::null_mut;
+use crate::ALLOCATOR;
+use core::{
+    alloc::{GlobalAlloc, Layout},
+    ptr::{self, null_mut},
+};
 
 pub struct Vec<T> {
     ptr: *mut T,
@@ -13,5 +17,23 @@ impl<T> Vec<T> {
             len: 0,
             cap: 0,
         }
+    }
+    pub fn grow(&mut self) {
+        let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
+        let layout = Layout::array::<T>(new_cap).unwrap();
+        let new_ptr = unsafe { ALLOCATOR.alloc(layout) };
+
+        if new_ptr.is_null() {
+            panic!("allocation failed");
+        }
+
+        if self.len > 0 {
+            unsafe {
+                ptr::copy_nonoverlapping(self.ptr, new_ptr.cast::<T>(), self.len);
+            }
+        }
+
+        self.ptr = new_ptr.cast::<T>();
+        self.cap = new_cap;
     }
 }
