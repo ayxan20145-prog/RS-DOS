@@ -47,4 +47,14 @@ impl<T> Vec<T> {
         self.ptr = new_ptr.cast::<T>();
         self.cap = new_cap;
     }
+    pub fn get(&self, index: usize) -> Option<&T> {
+        if index >= self.len {
+            return None;
+        }
+
+        unsafe { Some(&*self.ptr.add(index)) }
+    }
+    pub fn len(&self) -> usize {
+        self.len
+    }
 }
