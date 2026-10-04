@@ -3,6 +3,7 @@ use crate::{
         keyboard::{self, Key},
         vga::{Color, writer},
     },
+    format,
     fs::fs,
     print,
     programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
@@ -327,8 +328,8 @@ pub fn cmd_tui() {
     tui::draw_text(0, 0, "hi", Color::Red, Color::Black);
 }
 pub fn cmd_string() {
-    let mut s = String::from("salam");
-    s.push_str(" netersen");
+    let hi = String::from("world");
+    let s = format!("hello {}", hi);
     print!("\n{}", s);
 }
 fn parse_color(name: &str) -> Result<Color> {

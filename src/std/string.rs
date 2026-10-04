@@ -69,3 +69,19 @@ impl fmt::Display for String {
         f.write_str(self.as_str())
     }
 }
+impl fmt::Write for String {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.push_str(s);
+        Ok(())
+    }
+}
+
+#[macro_export]
+macro_rules! format {
+    ($($arg:tt)*) => {{
+        let mut s = String::new();
+        use core::fmt::Write;
+        write!(&mut s, $($arg)*).unwrap();
+        s
+    }};
+}
