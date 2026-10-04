@@ -18,6 +18,17 @@ impl<T> Vec<T> {
             cap: 0,
         }
     }
+    pub fn push(&mut self, value: T) {
+        if self.len == self.cap {
+            self.grow();
+        }
+
+        unsafe {
+            self.ptr.add(self.len).write(value);
+        }
+
+        self.len += 1;
+    }
     pub fn grow(&mut self) {
         let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
         let layout = Layout::array::<T>(new_cap).unwrap();
