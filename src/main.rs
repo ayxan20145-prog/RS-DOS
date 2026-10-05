@@ -10,6 +10,7 @@ mod panic;
 mod programs;
 mod shell;
 mod std;
+mod tester;
 mod tui;
 
 use crate::{
@@ -37,6 +38,8 @@ pub fn kernel_main() -> ! {
     unsafe {
         ALLOCATOR.init(HEAP_START, HEAP_END);
     }
+
+    tester::run();
 
     shell::run();
 
