@@ -57,6 +57,41 @@ impl<T> Vec<T> {
     pub fn len(&self) -> usize {
         self.len
     }
+    pub fn as_slice(&self) -> &[T] {
+        unsafe { core::slice::from_raw_parts(self.ptr, self.len) }
+    }
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        unsafe { core::slice::from_raw_parts_mut(self.ptr, self.len) }
+    }
+    pub fn pop(&mut self) -> Option<T> {
+        if self.len == 0 {
+            return None;
+        }
+
+        self.len -= 1;
+
+        unsafe { Some(self.ptr.add(self.len).read()) }
+    }
+    pub fn clear(&mut self) {
+        while self.pop().is_some() {}
+    }
+    pub fn remove(&mut self, index: usize) -> T {
+        assert!(index < self.len);
+
+        unsafe {
+            let value = self.ptr.add(index).read();
+
+            ptr::copy(
+                self.ptr.add(index + 1),
+                self.ptr.add(index),
+                self.len - index - 1,
+            );
+
+            self.len -= 1;
+
+            value
+        }
+    }
 }
 
 impl<T: Clone> Clone for Vec<T> {
