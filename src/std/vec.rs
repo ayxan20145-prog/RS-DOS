@@ -11,7 +11,7 @@ pub struct Vec<T> {
 }
 
 impl<T> Vec<T> {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             ptr: null_mut(),
             len: 0,

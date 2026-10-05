@@ -5,85 +5,60 @@ use crate::{
     FS,
     drivers::vga::writer,
     print,
-    std::error::{Error, Result},
+    std::{
+        error::{Error, Result},
+        vec::Vec,
+    },
 };
 use core::fmt::Write;
 
-const MAX_FILES: usize = 32;
-const MAX_NAME: usize = 32;
-const MAX_DATA: usize = 1024;
-
-#[derive(Copy, Clone)]
 pub struct File {
-    pub name: [u8; MAX_NAME],
-    pub name_len: usize,
-
-    pub data: [u8; MAX_DATA],
-    pub data_len: usize,
-
-    pub used: bool,
+    pub name: Vec<u8>,
+    pub data: Vec<u8>,
     pub is_dir: bool,
 }
 
 pub struct FileSystem {
-    pub files: [File; MAX_FILES],
-}
-
-impl File {
-    pub const fn new() -> Self {
-        Self {
-            name: [0; MAX_NAME],
-            name_len: 0,
-
-            data: [0; MAX_DATA],
-            data_len: 0,
-
-            used: false,
-            is_dir: false,
-        }
-    }
+    pub files: Vec<File>,
 }
 
 impl FileSystem {
     pub const fn new() -> Self {
-        Self {
-            files: [File::new(); MAX_FILES],
-        }
+        Self { files: Vec::new() }
     }
     pub fn create(&mut self, name: &[u8]) -> Result<()> {
         if name.is_empty() {
             return Err(Error::FileNameEmpty);
-        } else if name.len() > MAX_NAME {
-            return Err(Error::FileNameTooLong);
         }
 
-        for file in &mut self.files {
-            if !file.used {
-                file.name[..name.len()].copy_from_slice(name);
-                file.name_len = name.len();
-                file.data_len = 0;
-                file.used = true;
-                file.is_dir = false;
+        self.files.push(File {
+            name: {
+                let mut name_vec = Vec::new();
 
-                return Ok(());
-            }
-        }
+                for &byte in name {
+                    name_vec.push(byte);
+                }
 
-        Err(Error::NoFreeSlot)
+                name_vec
+            },
+            data: Vec::new(),
+            is_dir: false,
+        });
+
+        Ok(())
     }
     pub fn write(&mut self, name: &[u8], data: &[u8]) -> Result<()> {
-        for file in &mut self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+        for file in self.files.as_mut_slice() {
+            if file.name.as_slice() == name {
                 if file.is_dir {
                     return Err(Error::NotAFile);
                 }
 
-                if data.len() > MAX_DATA {
-                    return Err(Error::FileTooLarge);
-                }
+                file.data.clear();
 
-                file.data[..data.len()].copy_from_slice(data);
-                file.data_len = data.len();
+                for &byte in data {
+                    file.data.push(byte);
+                }
 
                 return Ok(());
             }
@@ -92,48 +67,46 @@ impl FileSystem {
         Err(Error::FileNotFound)
     }
     pub fn read(&self, name: &[u8]) -> Result<&[u8]> {
-        for file in &self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+        for file in self.files.as_slice() {
+            if file.name.as_slice() == name {
                 if file.is_dir {
                     return Err(Error::NotAFile);
                 }
-                return Ok(&file.data[..file.data_len]);
+
+                return Ok(file.data.as_slice());
             }
         }
 
         Err(Error::FileNotFound)
     }
     pub fn remove_file(&mut self, name: &[u8]) -> Result<()> {
-        for file in &mut self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+        for i in 0..self.files.len() {
+            let file = self.files.get(i).unwrap();
+
+            if file.name.as_slice() == name {
                 if file.is_dir {
                     return Err(Error::NotAFile);
                 }
 
-                file.used = false;
-                file.name_len = 0;
-                file.name = [0; MAX_NAME];
-
+                self.files.remove(i);
                 return Ok(());
             }
         }
 
-        Err(Error::NotAFile)
+        Err(Error::FileNotFound)
     }
     pub fn list(&self) {
-        for file in &self.files {
-            if file.used {
-                if file.is_dir {
-                    print!(
-                        "\n<DIR> {}",
-                        core::str::from_utf8(&file.name[..file.name_len]).unwrap()
-                    );
-                } else {
-                    print!(
-                        "\n      {}",
-                        core::str::from_utf8(&file.name[..file.name_len]).unwrap()
-                    );
-                }
+        for file in self.files.as_slice() {
+            if file.is_dir {
+                print!(
+                    "\n<DIR> {}",
+                    core::str::from_utf8(file.name.as_slice()).unwrap()
+                );
+            } else {
+                print!(
+                    "\n      {}",
+                    core::str::from_utf8(file.name.as_slice()).unwrap()
+                );
             }
         }
     }
@@ -142,35 +115,32 @@ impl FileSystem {
             return Err(Error::DirectoryNameEmpty);
         }
 
-        if name.len() > MAX_NAME {
-            return Err(Error::DirectoryNameTooLong);
-        }
+        self.files.push(File {
+            name: {
+                let mut name_vec = Vec::new();
 
-        for file in &mut self.files {
-            if !file.used {
-                file.name[..name.len()].copy_from_slice(name);
-                file.name_len = name.len();
-                file.data_len = 0;
-                file.used = true;
-                file.is_dir = true;
+                for &byte in name {
+                    name_vec.push(byte);
+                }
 
-                return Ok(());
-            }
-        }
+                name_vec
+            },
+            data: Vec::new(),
+            is_dir: true,
+        });
 
-        Err(Error::NoFreeSlot)
+        Ok(())
     }
     pub fn remove_dir(&mut self, name: &[u8]) -> Result<()> {
-        for file in &mut self.files {
-            if file.used && file.name_len == name.len() && &file.name[..file.name_len] == name {
+        for i in 0..self.files.len() {
+            let file = self.files.get(i).unwrap();
+
+            if file.name.as_slice() == name {
                 if !file.is_dir {
                     return Err(Error::NotADirectory);
                 }
 
-                file.used = false;
-                file.name_len = 0;
-                file.name = [0; MAX_NAME];
-
+                self.files.remove(i);
                 return Ok(());
             }
         }
