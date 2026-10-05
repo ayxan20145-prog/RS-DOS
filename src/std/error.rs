@@ -4,15 +4,11 @@ use core::fmt;
 pub enum Error {
     // Filesystem
     FileNameEmpty,
-    FileNameTooLong,
     FileNotFound,
     FileAlreadyExists,
-    NoFreeSlot,
-    FileTooLarge,
     NotAFile,
     NotADirectory,
     DirectoryNameEmpty,
-    DirectoryNameTooLong,
     DirectoryNotFound,
     DirectoryNotEmpty,
     WriteFailed,
@@ -50,15 +46,11 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = match self {
             Error::FileNameEmpty => "file name can't be empty",
-            Error::FileNameTooLong => "file name too long",
             Error::FileNotFound => "file not found",
             Error::FileAlreadyExists => "file already exists",
-            Error::NoFreeSlot => "no free file slot",
-            Error::FileTooLarge => "file too large",
             Error::NotAFile => "not a file",
             Error::NotADirectory => "not a directory",
             Error::DirectoryNameEmpty => "directory name can't be empty",
-            Error::DirectoryNameTooLong => "directory name too long",
             Error::DirectoryNotFound => "directory not found",
             Error::DirectoryNotEmpty => "directory not empty",
             Error::WriteFailed => "write failed",
