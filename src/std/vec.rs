@@ -1,7 +1,7 @@
 use crate::ALLOCATOR;
 use core::{
     alloc::{GlobalAlloc, Layout},
-    ptr::{self, null_mut},
+    ptr::{self, NonNull},
 };
 
 pub struct Vec<T> {
@@ -13,7 +13,7 @@ pub struct Vec<T> {
 impl<T> Vec<T> {
     pub const fn new() -> Self {
         Self {
-            ptr: null_mut(),
+            ptr: NonNull::dangling().as_ptr(),
             len: 0,
             cap: 0,
         }

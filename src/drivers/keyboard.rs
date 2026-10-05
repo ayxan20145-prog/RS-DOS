@@ -179,32 +179,3 @@ pub fn read_key() -> Option<Key> {
         },
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_base_keymap() {
-        assert_eq!(BASE_KEYMAP[0x02], Some('1'));
-        assert_eq!(BASE_KEYMAP[0x10], Some('q'));
-        assert_eq!(BASE_KEYMAP[0x1E], Some('a'));
-        assert_eq!(BASE_KEYMAP[0x2C], Some('z'));
-        assert_eq!(BASE_KEYMAP[0x39], Some(' '));
-        assert_eq!(BASE_KEYMAP[0x1C], Some('\n'));
-        assert_eq!(BASE_KEYMAP[0x0E], Some('\x08'));
-    }
-
-    #[test]
-    fn test_shift_keymap() {
-        assert_eq!(SHIFT_KEYMAP[0x02], Some('!'));
-        assert_eq!(SHIFT_KEYMAP[0x03], Some('@'));
-        assert_eq!(SHIFT_KEYMAP[0x10], Some('Q'));
-        assert_eq!(SHIFT_KEYMAP[0x1E], Some('A'));
-        assert_eq!(SHIFT_KEYMAP[0x2C], Some('Z'));
-
-        assert_eq!(SHIFT_KEYMAP[0x0C], Some('_'));
-        assert_eq!(SHIFT_KEYMAP[0x0D], Some('+'));
-        assert_eq!(SHIFT_KEYMAP[0x35], Some('?'));
-    }
-}

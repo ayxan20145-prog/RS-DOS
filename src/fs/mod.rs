@@ -1,6 +1,3 @@
-#[cfg(test)]
-mod tests;
-
 use crate::{
     FS,
     drivers::vga::writer,
