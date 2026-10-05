@@ -5,5 +5,7 @@ edition = "2024"
 
 [[bin]]
 name = "RS-DOS"
+test = false
+bench = false
 
 [dependencies]
