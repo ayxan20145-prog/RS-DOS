@@ -58,3 +58,17 @@ impl<T> Vec<T> {
         self.len
     }
 }
+
+impl<T: Clone> Clone for Vec<T> {
+    fn clone(&self) -> Self {
+        let mut new = Self::new();
+
+        for i in 0..self.len {
+            unsafe {
+                new.push((*self.ptr.add(i)).clone());
+            }
+        }
+
+        new
+    }
+}
