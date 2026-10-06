@@ -42,6 +42,10 @@ struct Parser {
     position: usize,
 }
 
+struct Program {
+    statements: Vec<Statement>,
+}
+
 impl Lexer {
     fn new(source: &str) -> Self {
         let mut chars = Vec::new();
@@ -203,5 +207,14 @@ impl Parser {
 
             _ => panic!("expected operand"),
         }
+    }
+    fn parse_program(&mut self) -> Program {
+        let mut statements = Vec::new();
+
+        while *self.current() != Token::Eof {
+            statements.push(self.parse_statement());
+        }
+
+        Program { statements }
     }
 }
