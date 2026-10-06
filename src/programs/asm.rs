@@ -17,6 +17,11 @@ struct Lexer {
     position: usize,
 }
 
+struct Parser {
+    tokens: Vec<Token>,
+    position: usize,
+}
+
 impl Lexer {
     fn new(source: &str) -> Self {
         let mut chars = Vec::new();
@@ -117,5 +122,14 @@ impl Lexer {
         }
 
         tokens
+    }
+}
+
+impl Parser {
+    fn new(tokens: Vec<Token>) -> Self {
+        Self {
+            tokens,
+            position: 0,
+        }
     }
 }
