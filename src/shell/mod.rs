@@ -3,16 +3,12 @@ use crate::{
         keyboard::{self, Key},
         vga::{Color, writer},
     },
-    format,
     fs::fs,
     print,
     programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
     std::{
-        boxed::Box,
         error::{Error, Result},
         str::string_to_hex,
-        string::String,
-        vec::Vec,
     },
 };
 use core::fmt::Write;
