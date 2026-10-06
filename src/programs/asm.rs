@@ -1,5 +1,6 @@
 use crate::std::{string::String, vec::Vec};
 
+#[derive(PartialEq)]
 enum Token {
     Identifier(String),
     Number(i32),
@@ -100,5 +101,21 @@ impl Lexer {
                 panic!("unexpected char: {}", c);
             }
         }
+    }
+    fn tokenize(&mut self) -> Vec<Token> {
+        let mut tokens = Vec::new();
+
+        loop {
+            let token = self.next_token();
+
+            if token == Token::Eof {
+                tokens.push(Token::Eof);
+                break;
+            }
+
+            tokens.push(token);
+        }
+
+        tokens
     }
 }

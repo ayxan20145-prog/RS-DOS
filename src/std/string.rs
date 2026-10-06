@@ -6,6 +6,7 @@ use core::{
     ptr::{self, null_mut},
 };
 
+#[derive(PartialEq)]
 pub struct String {
     ptr: *mut u8,
     len: usize,
