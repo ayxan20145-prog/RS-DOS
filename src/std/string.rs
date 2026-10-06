@@ -2,6 +2,7 @@ use crate::ALLOCATOR;
 use core::{
     alloc::{GlobalAlloc, Layout},
     fmt,
+    ops::Deref,
     ptr::{self, null_mut},
 };
 
@@ -76,7 +77,13 @@ impl fmt::Write for String {
         Ok(())
     }
 }
+impl Deref for String {
+    type Target = str;
 
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
 #[macro_export]
 macro_rules! format {
     ($($arg:tt)*) => {{
