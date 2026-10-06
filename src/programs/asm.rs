@@ -21,9 +21,17 @@ enum Statement {
 }
 
 enum Operand {
-    Register(String),
+    Register(Register),
     Number(i32),
 }
+
+enum Register {
+    Eax,
+    Ebx,
+    Ecx,
+    Edx,
+}
+
 struct Lexer {
     source: Vec<char>,
     position: usize,
@@ -175,9 +183,16 @@ impl Parser {
     fn parse_operand(&mut self) -> Operand {
         match self.current() {
             Token::Identifier(name) => {
-                let name = name.clone();
+                let register = match name.as_str() {
+                    "eax" => Register::Eax,
+                    "ebx" => Register::Ebx,
+                    "ecx" => Register::Ecx,
+                    "edx" => Register::Edx,
+                    _ => panic!("unknown register: {}", name),
+                };
+
                 self.advance();
-                Operand::Register(name)
+                Operand::Register(register)
             }
 
             Token::Number(value) => {
