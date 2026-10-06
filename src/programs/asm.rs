@@ -18,4 +18,10 @@ impl Lexer {
             position: 0,
         }
     }
+    fn current(&self) -> Option<char> {
+        self.source.get(self.position).copied()
+    }
+    fn advance(&mut self) {
+        self.position += 1;
+    }
 }
