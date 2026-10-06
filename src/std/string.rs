@@ -85,6 +85,19 @@ impl Deref for String {
         self.as_str()
     }
 }
+impl Clone for String {
+    fn clone(&self) -> Self {
+        let mut string = Self::new();
+
+        for i in 0..self.len {
+            unsafe {
+                string.push(*self.ptr.add(i));
+            }
+        }
+
+        string
+    }
+}
 #[macro_export]
 macro_rules! format {
     ($($arg:tt)*) => {{

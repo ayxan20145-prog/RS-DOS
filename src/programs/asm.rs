@@ -12,6 +12,18 @@ enum Token {
 
     Eof,
 }
+
+enum Statement {
+    Mov {
+        destination: Operand,
+        source: Operand,
+    },
+}
+
+enum Operand {
+    Register(String),
+    Number(i32),
+}
 struct Lexer {
     source: Vec<char>,
     position: usize,
@@ -137,5 +149,44 @@ impl Parser {
     }
     fn advance(&mut self) {
         self.position += 1;
+    }
+    fn parse_statement(&mut self) -> Statement {
+        self.advance();
+
+        let destination = self.parse_operand();
+
+        match self.current() {
+            Token::Comma => self.advance(),
+            _ => panic!("expected ','"),
+        }
+
+        let source = self.parse_operand();
+
+        match self.current() {
+            Token::Newline | Token::Eof => self.advance(),
+            _ => panic!("expected newline"),
+        }
+
+        Statement::Mov {
+            destination,
+            source,
+        }
+    }
+    fn parse_operand(&mut self) -> Operand {
+        match self.current() {
+            Token::Identifier(name) => {
+                let name = name.clone();
+                self.advance();
+                Operand::Register(name)
+            }
+
+            Token::Number(value) => {
+                let value = *value;
+                self.advance();
+                Operand::Number(value)
+            }
+
+            _ => panic!("expected operand"),
+        }
     }
 }
