@@ -14,7 +14,6 @@ use crate::{
         string::String,
         vec::Vec,
     },
-    tui,
 };
 use core::fmt::Write;
 
@@ -153,10 +152,6 @@ pub fn execute(line: &str) {
         "rd" => cmd_rd(args.as_bytes()),
         "calc" => cmd_calc(args),
         "bat" => cmd_bat(args.as_bytes()),
-        "tui" => cmd_tui(),
-        "string" => cmd_string(),
-        "vec" => cmd_vec(),
-        "box" => cmd_box(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -327,30 +322,6 @@ pub fn cmd_calc(args: &str) {
 }
 pub fn cmd_bat(name: &[u8]) {
     bat(name);
-}
-pub fn cmd_tui() {
-    tui::draw_text(0, 0, "hi", Color::Red, Color::Black);
-}
-pub fn cmd_string() {
-    let hi = String::from("world");
-    let s = format!("hello {}", hi);
-    print!("\n{}", s);
-}
-pub fn cmd_vec() {
-    let mut v = Vec::new();
-    v.push(4);
-    v.push(5);
-    v.push(6);
-
-    print!("\n");
-
-    for i in 0..v.len() {
-        print!("{} ", v.get(i).unwrap());
-    }
-}
-pub fn cmd_box() {
-    let hi = Box::new(5);
-    print!("\n{:p}", hi.as_ptr());
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {

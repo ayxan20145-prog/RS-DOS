@@ -11,7 +11,6 @@ mod programs;
 mod shell;
 mod std;
 mod tester;
-mod tui;
 
 use crate::{
     allocator::BumpAllocator,
