@@ -132,4 +132,10 @@ impl Parser {
             position: 0,
         }
     }
+    fn current(&self) -> &Token {
+        self.tokens.get(self.position).unwrap()
+    }
+    fn advance(&mut self) {
+        self.position += 1;
+    }
 }
