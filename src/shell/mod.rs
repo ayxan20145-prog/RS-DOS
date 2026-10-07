@@ -14,6 +14,7 @@ use crate::{
 use core::fmt::Write;
 
 const PROMPT: &str = "C:\\>";
+const PROGRAM_ADDR: usize = 0x100000;
 
 pub fn run() {
     writer().clear();
@@ -149,6 +150,7 @@ pub fn execute(line: &str) {
         "calc" => cmd_calc(args),
         "bat" => cmd_bat(args.as_bytes()),
         "asm" => cmd_asm(args.as_bytes()),
+        "run" => cmd_run(args.as_bytes()),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -156,7 +158,7 @@ pub fn execute(line: &str) {
 }
 pub fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat\nasm\nrun"
     );
 }
 pub fn cmd_cls() {
@@ -353,6 +355,25 @@ pub fn cmd_asm(name: &[u8]) {
     if let Err(e) = fs().write(b"a.out", bytes.as_slice()) {
         print!("\n{}", e);
     }
+}
+pub fn cmd_run(name: &[u8]) {
+    let code = match fs().read(name) {
+        Ok(code) => code,
+        Err(e) => {
+            print!("\n{}", e);
+            return;
+        }
+    };
+
+    unsafe {
+        core::ptr::copy_nonoverlapping(code.as_ptr(), PROGRAM_ADDR as *mut u8, code.len());
+    }
+
+    let program: extern "C" fn() -> u32 = unsafe { core::mem::transmute(PROGRAM_ADDR) };
+
+    let result = program();
+
+    print!("\n{}", result);
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
