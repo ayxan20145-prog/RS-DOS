@@ -269,6 +269,11 @@ pub fn assemble(program: &Program) -> Vec<u8> {
                     }
                 }
 
+                (Operand::Register(dest), Operand::Register(src)) => {
+                    bytes.push(0x89);
+                    bytes.push(0xC0 | (src.number() << 3) | dest.number());
+                }
+
                 _ => panic!("unsupported mov"),
             },
             Statement::Ret => {
