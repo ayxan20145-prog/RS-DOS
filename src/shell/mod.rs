@@ -5,7 +5,7 @@ use crate::{
     },
     fs::fs,
     print,
-    programs::{bat::bat, calc::calc, fetch::fetch, vi::vi},
+    programs::{asm, bat::bat, calc::calc, fetch::fetch, vi::vi},
     std::{
         error::{Error, Result},
         str::string_to_hex,
@@ -148,6 +148,7 @@ pub fn execute(line: &str) {
         "rd" => cmd_rd(args.as_bytes()),
         "calc" => cmd_calc(args),
         "bat" => cmd_bat(args.as_bytes()),
+        "asm" => cmd_asm(args.as_bytes()),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -318,6 +319,40 @@ pub fn cmd_calc(args: &str) {
 }
 pub fn cmd_bat(name: &[u8]) {
     bat(name);
+}
+pub fn cmd_asm(name: &[u8]) {
+    let source = match fs().read(name) {
+        Ok(source) => source,
+        Err(e) => {
+            print!("\n{}", e);
+            return;
+        }
+    };
+
+    let source = match core::str::from_utf8(source) {
+        Ok(source) => source,
+        Err(_) => {
+            print!("\n{}", Error::InvalidArgument);
+            return;
+        }
+    };
+
+    let mut lexer = asm::Lexer::new(source);
+
+    let tokens = lexer.tokenize();
+
+    let mut parser = asm::Parser::new(tokens);
+
+    let program = parser.parse_program();
+
+    let bytes = asm::assemble(&program);
+
+    if let Err(e) = fs().create(b"a.out") {
+        print!("\n{}", e);
+    }
+    if let Err(e) = fs().write(b"a.out", bytes.as_slice()) {
+        print!("\n{}", e);
+    }
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {

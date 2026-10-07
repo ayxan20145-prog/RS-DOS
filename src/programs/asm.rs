@@ -1,11 +1,12 @@
 use crate::std::{string::String, vec::Vec};
 
 #[derive(PartialEq)]
-enum Token {
+pub enum Token {
     Identifier(String),
     Number(i32),
 
     Mov,
+    Ret,
 
     Comma,
     Newline,
@@ -18,6 +19,7 @@ enum Statement {
         destination: Operand,
         source: Operand,
     },
+    Ret,
 }
 
 enum Operand {
@@ -32,22 +34,22 @@ enum Register {
     Edx,
 }
 
-struct Lexer {
+pub struct Lexer {
     source: Vec<char>,
     position: usize,
 }
 
-struct Parser {
+pub struct Parser {
     tokens: Vec<Token>,
     position: usize,
 }
 
-struct Program {
+pub struct Program {
     statements: Vec<Statement>,
 }
 
 impl Lexer {
-    fn new(source: &str) -> Self {
+    pub fn new(source: &str) -> Self {
         let mut chars = Vec::new();
 
         for c in source.chars() {
@@ -122,6 +124,7 @@ impl Lexer {
 
                 match name.as_str() {
                     "mov" => Token::Mov,
+                    "ret" => Token::Ret,
                     _ => Token::Identifier(name),
                 }
             }
@@ -131,7 +134,7 @@ impl Lexer {
             }
         }
     }
-    fn tokenize(&mut self) -> Vec<Token> {
+    pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = Vec::new();
 
         loop {
@@ -150,7 +153,7 @@ impl Lexer {
 }
 
 impl Parser {
-    fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens,
             position: 0,
@@ -163,25 +166,42 @@ impl Parser {
         self.position += 1;
     }
     fn parse_statement(&mut self) -> Statement {
-        self.advance();
-
-        let destination = self.parse_operand();
-
         match self.current() {
-            Token::Comma => self.advance(),
-            _ => panic!("expected ','"),
-        }
+            Token::Mov => {
+                self.advance();
 
-        let source = self.parse_operand();
+                let destination = self.parse_operand();
 
-        match self.current() {
-            Token::Newline | Token::Eof => self.advance(),
-            _ => panic!("expected newline"),
-        }
+                match self.current() {
+                    Token::Comma => self.advance(),
+                    _ => panic!("expected ','"),
+                }
 
-        Statement::Mov {
-            destination,
-            source,
+                let source = self.parse_operand();
+
+                match self.current() {
+                    Token::Newline => self.advance(),
+                    Token::Eof => {}
+                    _ => panic!("expected newline"),
+                }
+
+                Statement::Mov {
+                    destination,
+                    source,
+                }
+            }
+            Token::Ret => {
+                self.advance();
+
+                match self.current() {
+                    Token::Newline => self.advance(),
+                    Token::Eof => {}
+                    _ => panic!("expected newline"),
+                }
+
+                Statement::Ret
+            }
+            _ => panic!("expected statement"),
         }
     }
     fn parse_operand(&mut self) -> Operand {
@@ -208,7 +228,7 @@ impl Parser {
             _ => panic!("expected operand"),
         }
     }
-    fn parse_program(&mut self) -> Program {
+    pub fn parse_program(&mut self) -> Program {
         let mut statements = Vec::new();
 
         while *self.current() != Token::Eof {
@@ -217,4 +237,45 @@ impl Parser {
 
         Program { statements }
     }
+}
+
+impl Register {
+    fn number(&self) -> u8 {
+        match self {
+            Self::Eax => 0,
+            Self::Ecx => 1,
+            Self::Edx => 2,
+            Self::Ebx => 3,
+        }
+    }
+}
+
+pub fn assemble(program: &Program) -> Vec<u8> {
+    let mut bytes = Vec::new();
+
+    for statement in program.statements.as_slice() {
+        match statement {
+            Statement::Mov {
+                destination,
+                source,
+            } => match (destination, source) {
+                (Operand::Register(reg), Operand::Number(value)) => {
+                    let value = *value as u32;
+
+                    bytes.push(0xB8 + reg.number());
+
+                    for byte in value.to_le_bytes() {
+                        bytes.push(byte);
+                    }
+                }
+
+                _ => panic!("unsupported mov"),
+            },
+            Statement::Ret => {
+                bytes.push(0xC3);
+            }
+        }
+    }
+
+    bytes
 }
