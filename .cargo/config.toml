@@ -1,5 +1,10 @@
 [target.i686-unknown-none]
 rustflags = ["-C", "link-arg=-Tlinker.ld"]
 
+[build]
+target = "i686-unknown-none.json"
+
 [unstable]
 json-target-spec = true
+build-std-features = ["compiler-builtins-mem"]
+build-std = ["core", "compiler_builtins"]

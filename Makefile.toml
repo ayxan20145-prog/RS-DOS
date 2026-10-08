@@ -8,7 +8,6 @@ GRUB_DIR = "${BOOT_DIR}/grub"
 TARGET_DIR = "target/i686-unknown-none/debug"
 
 CARGO = "cargo +nightly"
-BUILD_FLAGS = "--target ${TARGET} -Zbuild-std=core,compiler_builtins -Zbuild-std-features=compiler-builtins-mem"
 
 [tasks.default]
 alias = "build"
@@ -17,7 +16,7 @@ alias = "build"
 description = "build kernel"
 clear = true
 script = [
-    "${CARGO} build ${BUILD_FLAGS}",
+    "${CARGO} build",
 ]
 
 [tasks.iso]
@@ -41,7 +40,7 @@ script = [
 description = "cargo check"
 clear = true
 script = [
-    "${CARGO} check ${BUILD_FLAGS}",
+    "${CARGO} check",
 ]
 
 [tasks.clean]
