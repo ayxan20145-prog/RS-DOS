@@ -1,4 +1,5 @@
 use crate::{
+    arch::cpu,
     drivers::{
         keyboard::{self, Key},
         vga::{Color, writer},
@@ -151,6 +152,7 @@ pub fn execute(line: &str) {
         "bat" => cmd_bat(args.as_bytes()),
         "asm" => cmd_asm(args.as_bytes()),
         "run" => cmd_run(args.as_bytes()),
+        "cpu_vendor" => cmd_cpu_vendor(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -158,7 +160,7 @@ pub fn execute(line: &str) {
 }
 pub fn cmd_help() {
     print!(
-        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat\nasm\nrun"
+        "\nhelp\ncls\necho\nver\nhalt\npanic\ncolor\nfetch\npeek\npoke\ndir\ntouch\ndel\nwrite\ntype\nvi\nmd\nrd\ncalc\nbat\nasm\nrun\ncpu_vendor"
     );
 }
 pub fn cmd_cls() {
@@ -374,6 +376,17 @@ pub fn cmd_run(name: &[u8]) {
     let result = program();
 
     print!("\n{}", result);
+}
+pub fn cmd_cpu_vendor() {
+    let bytes = cpu::vendor();
+
+    print!("\n");
+
+    for part in bytes {
+        for byte in part {
+            print!("{}", byte as char);
+        }
+    }
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
