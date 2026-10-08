@@ -2,7 +2,6 @@
 #![no_main]
 #![allow(static_mut_refs)]
 
-mod allocator;
 mod arch;
 mod drivers;
 mod fs;
@@ -13,9 +12,9 @@ mod std;
 mod tester;
 
 use crate::{
-    allocator::BumpAllocator,
     drivers::vga::{Color, Writer, writer},
     fs::FileSystem,
+    std::alloc::BumpAllocator,
 };
 use core::arch::global_asm;
 
