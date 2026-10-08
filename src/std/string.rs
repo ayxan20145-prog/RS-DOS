@@ -1,6 +1,5 @@
 use crate::ALLOCATOR;
 use core::{
-    alloc::{GlobalAlloc, Layout},
     fmt,
     ops::Deref,
     ptr::{self, null_mut},
@@ -39,8 +38,7 @@ impl String {
     }
     pub fn grow(&mut self) {
         let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
-        let layout = Layout::array::<u8>(new_cap).unwrap();
-        let new_ptr = unsafe { ALLOCATOR.alloc(layout) };
+        let new_ptr = unsafe { ALLOCATOR.alloc(new_cap) };
 
         if new_ptr.is_null() {
             panic!("allocation failed");

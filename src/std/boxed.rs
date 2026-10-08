@@ -1,8 +1,5 @@
 use crate::ALLOCATOR;
-use core::{
-    alloc::{GlobalAlloc, Layout},
-    ops::{Deref, DerefMut},
-};
+use core::ops::{Deref, DerefMut};
 
 pub struct Box<T> {
     ptr: *mut T,
@@ -10,9 +7,7 @@ pub struct Box<T> {
 
 impl<T> Box<T> {
     pub fn new(value: T) -> Self {
-        let layout = Layout::new::<T>();
-
-        let ptr = unsafe { ALLOCATOR.alloc(layout) as *mut T };
+        let ptr = unsafe { ALLOCATOR.alloc(size_of::<T>()) as *mut T };
 
         if ptr.is_null() {
             panic!("allocation failed");

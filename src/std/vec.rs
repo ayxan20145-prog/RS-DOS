@@ -1,8 +1,5 @@
 use crate::ALLOCATOR;
-use core::{
-    alloc::{GlobalAlloc, Layout},
-    ptr::{self, NonNull},
-};
+use core::ptr::{self, NonNull};
 
 pub struct Vec<T> {
     ptr: *mut T,
@@ -31,8 +28,8 @@ impl<T> Vec<T> {
     }
     pub fn grow(&mut self) {
         let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
-        let layout = Layout::array::<T>(new_cap).unwrap();
-        let new_ptr = unsafe { ALLOCATOR.alloc(layout) };
+        let new_size = new_cap * size_of::<T>();
+        let new_ptr = unsafe { ALLOCATOR.alloc(new_size) };
 
         if new_ptr.is_null() {
             panic!("allocation failed");

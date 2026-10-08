@@ -22,7 +22,6 @@ use core::arch::global_asm;
 const HEAP_START: usize = 0x0040_0000;
 const HEAP_END: usize = 0x0080_0000;
 
-#[global_allocator]
 pub static mut ALLOCATOR: BumpAllocator = BumpAllocator::new();
 pub static mut WRITER: Writer = Writer::new(0, 0, Color::White, Color::Black);
 pub static mut FS: FileSystem = FileSystem::new();
