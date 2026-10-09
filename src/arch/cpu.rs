@@ -8,7 +8,7 @@ pub fn halt() -> ! {
     }
 }
 pub fn vendor() -> [[u8; 4]; 3] {
-    let result = unsafe { __cpuid(0) };
+    let result = __cpuid(0);
 
     [
         result.ebx.to_le_bytes(),
