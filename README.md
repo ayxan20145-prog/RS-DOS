@@ -1,3 +1,5 @@
+![logo](logo.jpeg)
+
 # RS-DOS
 
 ![example](example.png)
