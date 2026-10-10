@@ -51,6 +51,11 @@ impl Writer {
         if byte == b'\n' {
             self.column = 0;
             self.row += 1;
+
+            if self.row >= 25 {
+                self.scroll();
+            }
+
             self.update_cursor(self.column, self.row);
             return;
         }
@@ -105,6 +110,22 @@ impl Writer {
         self.column = 0;
         self.row = 0;
         self.update_cursor(0, 0);
+    }
+    pub fn scroll(&mut self) {
+        unsafe {
+            let row_bytes = 160;
+            let last_row_start = 24 * row_bytes;
+
+            for i in 0..last_row_start {
+                *VGA_BUFFER.add(i) = *VGA_BUFFER.add(i + row_bytes);
+            }
+
+            for i in 0..80 {
+                write_byte_at(i, 24, b' ', self.fg, self.bg);
+            }
+
+            self.row = 24;
+        }
     }
 }
 
