@@ -10,12 +10,15 @@ use crate::{
     std::{
         error::{Error, Result},
         str::string_to_hex,
+        vec::Vec,
     },
 };
 use core::fmt::Write;
 
 const PROMPT: &str = "C:\\>";
 const PROGRAM_ADDR: usize = 0x100000;
+
+static mut LAST_CMD: Vec<u8> = Vec::new();
 
 pub fn run() {
     writer().clear();
@@ -40,6 +43,12 @@ pub fn run() {
                     print!("\n\n{}", PROMPT);
                 } else {
                     let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
+                    unsafe {
+                        LAST_CMD.clear();
+                        for smth in &cmd_buffer[..cmd_len] {
+                            LAST_CMD.push(*smth);
+                        }
+                    }
 
                     if line == "cls" {
                         cmd_cls();
@@ -99,7 +108,17 @@ pub fn run() {
                 }
             }
 
-            Key::Up | Key::Down => {}
+            Key::Up => unsafe {
+                if LAST_CMD.len() == 0 {
+                    continue;
+                }
+                cmd_len = LAST_CMD.len();
+                cmd_buffer[..cmd_len].copy_from_slice(LAST_CMD.as_slice());
+                cursor = cmd_len;
+                repaint(&cmd_buffer[..cmd_len], cursor);
+            },
+
+            Key::Down => {}
         }
     }
 }
