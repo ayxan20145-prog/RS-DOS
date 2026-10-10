@@ -18,6 +18,15 @@ impl BumpAllocator {
     }
     pub unsafe fn alloc(&mut self, size: usize) -> *mut u8 {
         let alloc_start = self.next;
+        let alloc_end = match alloc_start.checked_add(size) {
+            Some(end) => end,
+            None => return core::ptr::null_mut(), // overflow
+        };
+
+        if alloc_end > self.heap_end {
+            return core::ptr::null_mut(); // out of memory
+        }
+
         self.next += size;
         alloc_start as *mut u8
     }
