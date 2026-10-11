@@ -1,10 +1,20 @@
-use crate::{ALLOCATOR, arch, format, fs::*, print, std::string::String, writer};
+use crate::{
+    ALLOCATOR, arch, format,
+    fs::*,
+    print,
+    std::{boxed::Box, string::String},
+    writer,
+};
 use core::fmt::Write;
 
 pub fn run() {
     let mark = unsafe { ALLOCATOR.mark() };
 
-    let tests: &[(&str, fn() -> bool)] = &[("test_fs", test_fs), ("test_string", test_string)];
+    let tests: &[(&str, fn() -> bool)] = &[
+        ("test_fs", test_fs),
+        ("test_string", test_string),
+        ("test_box", test_box),
+    ];
 
     for (name, test) in tests {
         if !test() {
@@ -60,6 +70,23 @@ fn test_string() -> bool {
 
     let formatted = format!("{} + {}", 1, 2);
     if formatted.as_str() != "1 + 2" {
+        return false;
+    }
+
+    true
+}
+fn test_box() -> bool {
+    let mut b = Box::new(42u32);
+    if *b != 42 {
+        return false;
+    }
+
+    *b = 43;
+    if *b != 43 {
+        return false;
+    }
+
+    if b.as_ptr().is_null() {
         return false;
     }
 
