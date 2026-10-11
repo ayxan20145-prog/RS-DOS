@@ -2,7 +2,7 @@ use crate::{
     ALLOCATOR, arch, format,
     fs::*,
     print,
-    std::{boxed::Box, string::String, vec::Vec},
+    std::{alloc::BumpAllocator, boxed::Box, string::String, vec::Vec},
     writer,
 };
 use core::fmt::Write;
@@ -11,6 +11,7 @@ pub fn run() {
     let mark = unsafe { ALLOCATOR.mark() };
 
     let tests: &[(&str, fn() -> bool)] = &[
+        ("test_alloc", test_alloc),
         ("test_fs", test_fs),
         ("test_string", test_string),
         ("test_box", test_box),
@@ -27,6 +28,71 @@ pub fn run() {
 
     unsafe {
         ALLOCATOR.reset(mark);
+    }
+}
+
+fn test_alloc() -> bool {
+    let mut heap = [0u8; 256];
+    let mut allocator = BumpAllocator::new();
+
+    unsafe {
+        let heap_start = heap.as_mut_ptr() as usize;
+        let heap_end = heap_start + heap.len();
+        allocator.init(heap_start, heap_end);
+        let mark = allocator.mark();
+
+        let p1 = allocator.alloc(16);
+        if p1.is_null() {
+            return false;
+        }
+
+        for i in 0..16 {
+            *p1.add(i) = i as u8;
+        }
+        for i in 0..16 {
+            if *p1.add(i) != i as u8 {
+                return false;
+            }
+        }
+
+        if allocator.mark() != mark + 16 {
+            return false;
+        }
+
+        let p2 = allocator.alloc(32);
+        if p2.is_null() || (p2 as usize) < (p1 as usize) + 16 {
+            return false;
+        }
+
+        allocator.reset(mark);
+        if allocator.mark() != mark {
+            return false;
+        }
+
+        let p3 = allocator.alloc(16);
+        if p3 != p1 {
+            return false;
+        }
+        allocator.reset(mark);
+
+        if !allocator.alloc(usize::MAX).is_null() {
+            allocator.reset(mark);
+            return false;
+        }
+        if allocator.mark() != mark {
+            return false;
+        }
+
+        if !allocator.alloc(heap.len() + 1).is_null() {
+            allocator.reset(mark);
+            return false;
+        }
+        if allocator.mark() != mark {
+            return false;
+        }
+
+        allocator.reset(mark);
+        true
     }
 }
 
