@@ -16,6 +16,9 @@ impl BumpAllocator {
         self.heap_end = heap_end;
         self.next = heap_start;
     }
+    pub unsafe fn mark(&self) -> usize {
+        self.next
+    }
     pub unsafe fn alloc(&mut self, size: usize) -> *mut u8 {
         let alloc_start = self.next;
         let alloc_end = match alloc_start.checked_add(size) {
@@ -29,5 +32,10 @@ impl BumpAllocator {
 
         self.next += size;
         alloc_start as *mut u8
+    }
+    pub unsafe fn reset(&mut self, mark: usize) {
+        if mark >= self.heap_start && mark <= self.heap_end {
+            self.next = mark;
+        }
     }
 }

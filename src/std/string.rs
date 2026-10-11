@@ -2,7 +2,7 @@ use crate::ALLOCATOR;
 use core::{
     fmt,
     ops::Deref,
-    ptr::{self, null_mut},
+    ptr::{self, NonNull},
 };
 
 #[derive(PartialEq)]
@@ -15,7 +15,7 @@ pub struct String {
 impl String {
     pub fn new() -> Self {
         Self {
-            ptr: null_mut(),
+            ptr: NonNull::dangling().as_ptr(),
             len: 0,
             cap: 0,
         }
