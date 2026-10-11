@@ -11,36 +11,12 @@ pub fn run() {
 
 fn test_fs() -> bool {
     let mut fs = FileSystem::new();
-    // create file
-    if !fs.create(b"hi.txt").is_ok() {
-        return false;
-    }
 
-    // empty name
-    if !fs.create(b"").is_err() {
-        return false;
-    }
-
-    // write file
-    if !fs.write(b"hi.txt", b"hello world").is_ok() {
-        return false;
-    }
-
-    // read file
-    if !(fs.read(b"hi.txt").unwrap() == b"hello world") {
-        return false;
-    }
-
-    // read missing file
-    if !fs.read(b"hello").is_err() {
-        return false;
-    }
-
-    // read dir as file
-    fs.create_dir(b"hi").unwrap();
-    if !fs.read(b"hi").is_err() {
-        return false;
-    }
-
-    true
+    fs.create(b"hi.txt").is_ok()
+        && fs.create(b"").is_err()
+        && fs.write(b"hi.txt", b"hello world").is_ok()
+        && fs.read(b"hi.txt").is_ok_and(|d| d == b"hello world")
+        && fs.read(b"hello").is_err()
+        && fs.create_dir(b"hi").is_ok()
+        && fs.read(b"hi").is_err()
 }
