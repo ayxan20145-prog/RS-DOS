@@ -2,7 +2,7 @@ use crate::{
     ALLOCATOR, arch, format,
     fs::*,
     print,
-    std::{boxed::Box, string::String},
+    std::{boxed::Box, string::String, vec::Vec},
     writer,
 };
 use core::fmt::Write;
@@ -14,6 +14,7 @@ pub fn run() {
         ("test_fs", test_fs),
         ("test_string", test_string),
         ("test_box", test_box),
+        ("test_vec", test_vec),
     ];
 
     for (name, test) in tests {
@@ -87,6 +88,59 @@ fn test_box() -> bool {
     }
 
     if b.as_ptr().is_null() {
+        return false;
+    }
+
+    true
+}
+fn test_vec() -> bool {
+    let mut v = Vec::<u32>::new();
+    if v.len() != 0 || !v.as_slice().is_empty() {
+        return false;
+    }
+
+    for i in 0..20 {
+        v.push(i);
+    }
+    if v.len() != 20 {
+        return false;
+    }
+
+    for i in 0..20 {
+        if v.get(i) != Some(&(i as u32)) {
+            return false;
+        }
+    }
+    if v.get(20).is_some() {
+        return false;
+    }
+
+    if v.pop() != Some(19) {
+        return false;
+    }
+
+    if v.remove(0) != 0 {
+        return false;
+    }
+
+    if v.as_slice()
+        != &[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+        ]
+    {
+        return false;
+    }
+
+    v.clear();
+    if v.len() != 0 || v.pop().is_some() {
+        return false;
+    }
+
+    let mut v2 = Vec::new();
+    v2.push(1);
+    v2.push(2);
+    let v3 = v2.clone();
+    if v3.as_slice() != &[1, 2] {
         return false;
     }
 
