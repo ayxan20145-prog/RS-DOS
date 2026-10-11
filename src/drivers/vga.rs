@@ -2,6 +2,8 @@ use crate::{WRITER, arch::io::outb};
 use core::fmt::{self, Write};
 
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
+const VGA_HEIGHT: usize = 25;
+const VGA_WIDTH: usize = 80;
 
 #[derive(Copy, Clone)]
 #[repr(u8)]
@@ -52,7 +54,7 @@ impl Writer {
             self.column = 0;
             self.row += 1;
 
-            if self.row >= 25 {
+            if self.row >= VGA_HEIGHT {
                 self.scroll();
             }
 
@@ -71,12 +73,12 @@ impl Writer {
             return;
         }
 
-        if self.column >= 80 {
+        if self.column >= VGA_WIDTH {
             self.column = 0;
             self.row += 1;
         }
 
-        if self.row >= 25 {
+        if self.row >= VGA_HEIGHT {
             self.clear();
             self.reset_cursor();
         }
@@ -92,14 +94,14 @@ impl Writer {
         }
     }
     pub fn clear(&mut self) {
-        for y in 0..25 {
-            for x in 0..80 {
+        for y in 0..VGA_HEIGHT {
+            for x in 0..VGA_WIDTH {
                 write_byte_at(x, y, b' ', self.fg, self.bg);
             }
         }
     }
     pub fn update_cursor(&self, column: usize, row: usize) {
-        let position = row * 80 + column;
+        let position = row * VGA_WIDTH + column;
 
         outb(0x3d4, 0x0f);
         outb(0x3d5, (position & 0xff) as u8);
@@ -113,8 +115,8 @@ impl Writer {
     }
     pub fn scroll(&mut self) {
         unsafe {
-            let row_bytes = 160;
-            let last_row_start = 24 * row_bytes;
+            let row_bytes = VGA_WIDTH * 2;
+            let last_row_start = (VGA_HEIGHT - 1) * row_bytes;
 
             for i in 0..last_row_start {
                 *VGA_BUFFER.add(i) = *VGA_BUFFER.add(i + row_bytes);
@@ -124,17 +126,17 @@ impl Writer {
                 write_byte_at(i, 24, b' ', self.fg, self.bg);
             }
 
-            self.row = 24;
+            self.row = VGA_HEIGHT - 1;
         }
     }
 }
 
 pub fn write_byte_at(x: usize, y: usize, byte: u8, fg: Color, bg: Color) {
-    if x >= 80 || y >= 25 {
+    if x >= VGA_WIDTH || y >= VGA_HEIGHT {
         return;
     }
 
-    let index = y * 80 + x;
+    let index = y * VGA_WIDTH + x;
 
     unsafe {
         *VGA_BUFFER.add(index * 2) = byte;
