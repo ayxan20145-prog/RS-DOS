@@ -94,16 +94,11 @@ impl FileSystem {
     }
     pub fn list(&self) {
         for file in self.files.as_slice() {
+            let name = core::str::from_utf8(file.name.as_slice()).unwrap_or("?");
             if file.is_dir {
-                print!(
-                    "\n<DIR> {}",
-                    core::str::from_utf8(file.name.as_slice()).unwrap()
-                );
+                print!("\n<DIR> {}", name);
             } else {
-                print!(
-                    "\n      {}",
-                    core::str::from_utf8(file.name.as_slice()).unwrap()
-                );
+                print!("\n      {}    {} bytes", name, file.data.len());
             }
         }
     }
