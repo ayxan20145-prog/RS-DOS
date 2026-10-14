@@ -89,6 +89,25 @@ impl<T> Vec<T> {
             value
         }
     }
+    pub fn insert(&mut self, index: usize, value: T) {
+        assert!(index <= self.len);
+        if self.len == self.cap {
+            self.grow();
+        }
+
+        unsafe {
+            ptr::copy(
+                self.ptr.add(index),
+                self.ptr.add(index + 1),
+                self.len - index,
+            );
+            self.ptr.add(index).write(value);
+        }
+        self.len += 1;
+    }
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
 }
 
 impl<T: Clone> Clone for Vec<T> {
