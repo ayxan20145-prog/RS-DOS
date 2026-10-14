@@ -1,16 +1,13 @@
 use crate::{
     arch::cpu,
-    drivers::{
-        keyboard::{self, Key},
-        vga::{Color, writer},
-    },
+    drivers::vga::{Color, writer},
     fs::fs,
     print,
     programs::{asm, bat::bat, calc::calc, fetch::fetch, vi::vi},
     std::{
         error::{Error, Result},
+        io::read_line,
         str::string_to_hex,
-        vec::Vec,
     },
 };
 use core::fmt::Write;
@@ -18,126 +15,19 @@ use core::fmt::Write;
 const PROMPT: &str = "C:\\>";
 const PROGRAM_ADDR: usize = 0x100000;
 
-static mut LAST_CMD: Vec<u8> = Vec::new();
-
 pub fn run() {
     writer().clear();
     writer().reset_cursor();
 
     print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
-    print!("\n{}", PROMPT);
-
-    let mut cmd_buffer = [0u8; 256];
-    let mut cmd_len = 0;
-    let mut cursor = 0;
+    print!("\n");
 
     loop {
-        let key = match keyboard::read_key() {
-            Some(k) => k,
-            None => continue,
-        };
-
-        match key {
-            Key::Char('\n') => {
-                if cmd_len == 0 {
-                    print!("\n\n{}", PROMPT);
-                } else {
-                    let line = core::str::from_utf8(&cmd_buffer[..cmd_len]).unwrap_or("");
-                    unsafe {
-                        LAST_CMD.clear();
-                        for smth in &cmd_buffer[..cmd_len] {
-                            LAST_CMD.push(*smth);
-                        }
-                    }
-
-                    if line == "cls" {
-                        cmd_cls();
-                        print!("{}", PROMPT);
-                    } else {
-                        execute(line);
-                        print!("\n{}", PROMPT);
-                    }
-                }
-                cmd_len = 0;
-                cursor = 0;
-            }
-            Key::Char('\x08') => {
-                let at_end = cursor == cmd_len;
-                if cursor > 0 {
-                    for i in cursor - 1..cmd_len - 1 {
-                        cmd_buffer[i] = cmd_buffer[i + 1];
-                    }
-                    cmd_len -= 1;
-                    cursor -= 1;
-
-                    if at_end {
-                        writer().write_byte(b'\x08');
-                    } else {
-                        repaint(&cmd_buffer[..cmd_len], cursor);
-                    }
-                }
-            }
-            Key::Char(c) => {
-                if cmd_len < cmd_buffer.len() {
-                    for i in (cursor..cmd_len).rev() {
-                        cmd_buffer[i + 1] = cmd_buffer[i];
-                    }
-                    cmd_buffer[cursor] = c as u8;
-                    cmd_len += 1;
-                    cursor += 1;
-
-                    if cursor == cmd_len {
-                        print!("{}", c);
-                    } else {
-                        repaint(&cmd_buffer[..cmd_len], cursor);
-                    }
-                }
-            }
-            Key::Left => {
-                if cursor > 0 {
-                    cursor -= 1;
-                    writer().column = PROMPT.len() + cursor;
-                    writer().update_cursor(writer().column, writer().row);
-                }
-            }
-            Key::Right => {
-                if cursor < cmd_len {
-                    cursor += 1;
-                    writer().column = PROMPT.len() + cursor;
-                    writer().update_cursor(writer().column, writer().row);
-                }
-            }
-
-            Key::Up => unsafe {
-                if LAST_CMD.len() == 0 {
-                    continue;
-                }
-                cmd_len = LAST_CMD.len();
-                cmd_buffer[..cmd_len].copy_from_slice(LAST_CMD.as_slice());
-                cursor = cmd_len;
-                repaint(&cmd_buffer[..cmd_len], cursor);
-            },
-
-            Key::Down => {}
-        }
+        let input = read_line(PROMPT);
+        let line = core::str::from_utf8(input.as_bytes()).unwrap_or("");
+        execute(line);
+        print!("\n");
     }
-}
-fn repaint(buffer: &[u8], cursor: usize) {
-    let row = writer().row;
-
-    writer().column = 0;
-    writer().write_string(PROMPT);
-    for &b in buffer {
-        writer().write_byte(b);
-    }
-
-    while writer().column < 79 {
-        writer().write_byte(b' ');
-    }
-
-    writer().column = PROMPT.len() + cursor;
-    writer().row = row;
-    writer().update_cursor(writer().column, writer().row);
 }
 pub fn execute(line: &str) {
     let mut parts = line.split_whitespace();
@@ -194,6 +84,7 @@ pub fn cmd_ver() {
 }
 pub fn cmd_halt() {
     print!("\nSystem halted");
+    cpu::halt();
 }
 pub fn cmd_panic() {
     panic!();
