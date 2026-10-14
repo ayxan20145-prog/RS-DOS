@@ -3,12 +3,11 @@ use crate::{
         keyboard::{self, Key},
         vga::writer,
     },
-    std::string::String,
+    std::{string::String, vec::Vec},
 };
 
 pub fn read_line(prompt: &str) -> String {
-    let mut buffer = [0u8; 256];
-    let mut len = 0usize;
+    let mut buffer = Vec::<u8>::new();
     let mut cursor = 0usize;
 
     writer().write_string(prompt);
@@ -21,39 +20,30 @@ pub fn read_line(prompt: &str) -> String {
 
         match key {
             Key::Char('\n') => {
-                let s = core::str::from_utf8(&buffer[..len]).unwrap_or("").into();
+                let s = core::str::from_utf8(buffer.as_slice()).unwrap_or("").into();
                 return s;
             }
             Key::Char('\x08') => {
-                let at_end = cursor == len;
                 if cursor > 0 {
-                    for i in cursor - 1..len - 1 {
-                        buffer[i] = buffer[i + 1];
-                    }
-                    len -= 1;
+                    let at_end = cursor == buffer.len();
+                    buffer.remove(cursor - 1);
                     cursor -= 1;
 
                     if at_end {
                         writer().write_byte(b'\x08');
                     } else {
-                        repaint(prompt, &buffer[..len], cursor);
+                        repaint(prompt, buffer.as_slice(), cursor);
                     }
                 }
             }
             Key::Char(c) => {
-                if len < buffer.len() {
-                    for i in (cursor..len).rev() {
-                        buffer[i + 1] = buffer[i];
-                    }
-                    buffer[cursor] = c as u8;
-                    len += 1;
-                    cursor += 1;
+                buffer.insert(cursor, c as u8);
+                cursor += 1;
 
-                    if cursor == len {
-                        writer().write_byte(c as u8);
-                    } else {
-                        repaint(prompt, &buffer[..len], cursor);
-                    }
+                if cursor == buffer.len() {
+                    writer().write_byte(c as u8);
+                } else {
+                    repaint(prompt, buffer.as_slice(), cursor);
                 }
             }
             Key::Left => {
@@ -64,7 +54,7 @@ pub fn read_line(prompt: &str) -> String {
                 }
             }
             Key::Right => {
-                if cursor < len {
+                if cursor < buffer.len() {
                     cursor += 1;
                     writer().column = prompt.len() + cursor;
                     writer().update_cursor(writer().column, writer().row);
