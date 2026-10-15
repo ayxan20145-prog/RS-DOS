@@ -1,60 +1,33 @@
-use crate::ALLOCATOR;
-use core::{
-    fmt,
-    ops::Deref,
-    ptr::{self, NonNull},
-};
+use crate::std::vec::Vec;
+use core::{fmt, ops::Deref};
 
-#[derive(PartialEq)]
 pub struct String {
-    ptr: *mut u8,
-    len: usize,
-    cap: usize,
+    bytes: Vec<u8>,
 }
 
 impl String {
     pub fn new() -> Self {
-        Self {
-            ptr: NonNull::dangling().as_ptr(),
-            len: 0,
-            cap: 0,
-        }
+        Self { bytes: Vec::new() }
     }
     pub fn push(&mut self, byte: u8) {
-        if self.len == self.cap {
-            self.grow();
-        }
-
-        unsafe {
-            self.ptr.add(self.len).write(byte);
-        }
-
-        self.len += 1;
+        self.bytes.push(byte);
     }
     pub fn push_str(&mut self, text: &str) {
         for byte in text.as_bytes() {
             self.push(*byte);
         }
     }
-    pub fn grow(&mut self) {
-        let new_cap = if self.cap == 0 { 8 } else { self.cap * 2 };
-        let new_ptr = unsafe { ALLOCATOR.alloc(new_cap) };
-
-        if new_ptr.is_null() {
-            panic!("allocation failed");
-        }
-
-        if self.len > 0 {
-            unsafe {
-                ptr::copy_nonoverlapping(self.ptr, new_ptr, self.len);
-            }
-        }
-
-        self.ptr = new_ptr;
-        self.cap = new_cap;
+    pub fn len(&self) -> usize {
+        self.bytes.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.bytes.is_empty()
+    }
+    pub fn as_bytes(&self) -> &[u8] {
+        self.bytes.as_slice()
     }
     pub fn as_str(&self) -> &str {
-        unsafe { core::str::from_utf8_unchecked(core::slice::from_raw_parts(self.ptr, self.len)) }
+        core::str::from_utf8(self.as_bytes()).expect("String contains invalid utf-8")
     }
 }
 
@@ -85,15 +58,14 @@ impl Deref for String {
 }
 impl Clone for String {
     fn clone(&self) -> Self {
-        let mut string = Self::new();
-
-        for i in 0..self.len {
-            unsafe {
-                string.push(*self.ptr.add(i));
-            }
+        Self {
+            bytes: self.bytes.clone(),
         }
-
-        string
+    }
+}
+impl PartialEq for String {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_bytes() == other.as_bytes()
     }
 }
 #[macro_export]
