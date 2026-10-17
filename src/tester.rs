@@ -1,9 +1,10 @@
 use crate::{
-    ALLOCATOR, arch, format,
+    ALLOCATOR, arch,
+    drivers::vga::{Color, writer},
+    format,
     fs::*,
     print,
     std::{alloc::BumpAllocator, boxed::Box, string::String, vec::Vec},
-    writer,
 };
 use core::fmt::Write;
 
@@ -18,8 +19,10 @@ pub fn run() {
         ("test_vec", test_vec),
     ];
 
+    writer().fg = Color::Green;
     for (name, test) in tests {
         if !test() {
+            writer().fg = Color::Red;
             print!("[ERR] {}\n", name);
             arch::cpu::halt();
         }
@@ -29,6 +32,8 @@ pub fn run() {
     unsafe {
         ALLOCATOR.reset(mark);
     }
+
+    writer().fg = Color::White;
 }
 
 fn test_alloc() -> bool {
@@ -120,6 +125,10 @@ fn test_string() -> bool {
         return false;
     }
 
+    if s.len() != 2 {
+        return false;
+    }
+
     s.push_str(" there");
     if s.as_str() != "hi there" {
         return false;
@@ -130,8 +139,13 @@ fn test_string() -> bool {
         return false;
     }
 
-    let s3 = String::from("hello");
+    let mut s3 = String::from("hello");
     if s3.as_str() != "hello" {
+        return false;
+    }
+
+    s3.clear();
+    if !s3.is_empty() {
         return false;
     }
 

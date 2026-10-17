@@ -23,6 +23,9 @@ impl String {
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
+    pub fn clear(&mut self) {
+        self.bytes.clear();
+    }
     pub fn as_bytes(&self) -> &[u8] {
         self.bytes.as_slice()
     }

@@ -16,10 +16,7 @@ const PROMPT: &str = "C:\\>";
 const PROGRAM_ADDR: usize = 0x100000;
 
 pub fn run() {
-    writer().clear();
-    writer().reset_cursor();
-
-    print!("Welcome to RS-DOS!\nType `help` to see available commands\n");
+    print!("\nWelcome to RS-DOS!\nType `help` to see available commands\n");
     print!("\n");
 
     loop {
