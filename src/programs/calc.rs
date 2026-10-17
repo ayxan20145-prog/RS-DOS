@@ -14,28 +14,28 @@ pub fn calc(line: &str) -> Result<f64> {
 
             match op {
                 "+" => {
-                    return Ok(num1 + num2);
+                    Ok(num1 + num2)
                 }
                 "-" => {
-                    return Ok(num1 - num2);
+                    Ok(num1 - num2)
                 }
                 "*" => {
-                    return Ok(num1 * num2);
+                    Ok(num1 * num2)
                 }
                 "/" => {
                     if num2 == 0.0 {
-                        return Err(Error::DivisionByZero);
+                        Err(Error::DivisionByZero)
                     } else {
-                        return Ok(num1 / num2);
+                        Ok(num1 / num2)
                     }
                 }
                 _ => {
-                    return Err(Error::UnknownOperator);
+                    Err(Error::UnknownOperator)
                 }
-            };
+            }
         }
         _ => {
-            return Err(Error::MissingArgument);
+            Err(Error::MissingArgument)
         }
     }
 }

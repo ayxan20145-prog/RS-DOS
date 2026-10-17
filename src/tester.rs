@@ -136,11 +136,7 @@ fn test_string() -> bool {
     }
 
     let formatted = format!("{} + {}", 1, 2);
-    if formatted.as_str() != "1 + 2" {
-        return false;
-    }
-
-    true
+    formatted.as_str() == "1 + 2"
 }
 fn test_box() -> bool {
     let mut b = Box::new(42u32);
@@ -161,7 +157,7 @@ fn test_box() -> bool {
 }
 fn test_vec() -> bool {
     let mut v = Vec::<u32>::new();
-    if v.len() != 0 || !v.as_slice().is_empty() {
+    if !v.is_empty() || !v.as_slice().is_empty() {
         return false;
     }
 
@@ -190,7 +186,7 @@ fn test_vec() -> bool {
     }
 
     if v.as_slice()
-        != &[
+        != [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
         ]
     {
@@ -198,7 +194,7 @@ fn test_vec() -> bool {
     }
 
     v.clear();
-    if v.len() != 0 || v.pop().is_some() {
+    if !v.is_empty() || v.pop().is_some() {
         return false;
     }
 
@@ -206,9 +202,5 @@ fn test_vec() -> bool {
     v2.push(1);
     v2.push(2);
     let v3 = v2.clone();
-    if v3.as_slice() != &[1, 2] {
-        return false;
-    }
-
-    true
+    v3.as_slice() == [1, 2]
 }
