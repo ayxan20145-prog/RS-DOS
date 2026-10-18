@@ -8,6 +8,7 @@ use crate::{
         error::{Error, Result},
         io::read_line,
         str::string_to_hex,
+        tui,
     },
 };
 use core::fmt::Write;
@@ -59,6 +60,7 @@ pub fn execute(line: &str) {
         "asm" => cmd_asm(args.as_bytes()),
         "run" => cmd_run(args.as_bytes()),
         "cpu_vendor" => cmd_cpu_vendor(),
+        "tui" => cmd_tui(),
         other => {
             print!("\nunknown command: {}", other);
         }
@@ -294,6 +296,9 @@ pub fn cmd_cpu_vendor() {
             print!("{}", byte as char);
         }
     }
+}
+pub fn cmd_tui() {
+    tui::draw_rect(0, 0, 5, 5, b'a', Color::White, Color::Black);
 }
 fn parse_color(name: &str) -> Result<Color> {
     Ok(match name {
