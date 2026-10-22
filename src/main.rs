@@ -29,7 +29,7 @@ global_asm!(include_str!("arch/boot.asm"));
 
 #[cfg(not(test))]
 #[unsafe(no_mangle)]
-pub fn kernel_main() -> ! {
+pub extern "C" fn kernel_main(mbi: *const u8) -> ! {
     writer().clear();
 
     unsafe {

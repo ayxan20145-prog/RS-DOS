@@ -6,6 +6,15 @@ header_start:
     .long header_end - header_start
     .long 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
 
+    # framebuffer
+    .align 8
+    .short 5
+    .short 1
+    .long 20
+    .long 800 # width
+    .long 600 # height
+    .long 32 # bits per pixel
+    
     .align 8
     .word 0
     .word 0
@@ -19,6 +28,8 @@ header_end:
 
 start:
     mov esp, offset stack_top
+
+    push ebx
     call kernel_main
     cli
     hlt
